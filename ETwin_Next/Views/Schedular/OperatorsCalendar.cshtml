@@ -1,0 +1,92 @@
+﻿@using Etwin.DAL.Models
+@model SchedularViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutSchedular.cshtml"; ;
+    ViewData["Title"] = "Scheduler";
+}
+
+<div class="demo-container">
+    @*<div>
+        <label for="defaultViewSelector">Select Default View:</label>
+        <select id="defaultViewSelector" onchange="changeDefaultView()">
+            <option value="day">All Day View</option>
+            <option value="workWeek">Work Week View</option>
+            <option value="week">Full Week View</option>
+            <option value="month">Month View</option>
+            <option value="timelineWeek">Timeline View</option>
+            <option value="gantt">Gantt View</option>
+            <option value="agenda">Agenda View</option>
+            <option value="year">Year View</option>
+        </select>
+    </div>*@
+    <div id="scheduler"></div>
+</div>
+
+@*<script>
+    $(function () {
+        var appointments = @Html.Raw(Json.Serialize(Model.ClsschedulerAppointmentMapping));
+        var resources = @Html.Raw(Json.Serialize(Model.ClsschedulerResourceMapping));
+        // Your existing scheduler initialization code here
+        var scheduler = $("#scheduler").dxScheduler({
+            dataSource: appointments,
+           // resources: resources,
+            resources: [{
+                fieldExpr: 'Caption',
+                dataSource: resources,
+                label: 'Operator',
+            }],
+            currentView: "workWeek", // Set the default view
+            currentDate: new Date(), // Set the default date
+            startDayHour: 8, // Set the starting hour
+            endDayHour: 18 ,// Set the ending hour
+            interval: 30,
+            scrolling: {
+                mode: 'virtual',
+            }           
+        }).dxScheduler("instance");
+
+        //function changeDefaultView() {
+        //    var selectedDefaultView = $("#defaultViewSelector").val();
+        //    scheduler.option("currentView", selectedDefaultView);
+        //}
+    });
+</script>*@
+<script>
+    var appointments = @Html.Raw(Json.Serialize(Model.ClsschedulerAppointmentMapping));
+    var resources = @Html.Raw(Json.Serialize(Model.ClsschedulerResourceMapping));
+    const startDayHour = 8;
+    const endDayHour = 20;
+    $('#scheduler').dxScheduler({
+        height: 600,
+        currentDate: new Date(),
+        dataSource: appointments,
+        views: [
+            {
+                type: 'timelineWorkWeek',
+                name: 'Timeline',
+                groupOrientation: 'vertical',
+            },
+            {
+                type: 'workWeek',
+                groupOrientation: 'vertical',
+            },
+            {
+                type: 'month',
+                groupOrientation: 'horizontal',
+            },
+        ],
+        currentView: 'Timeline',
+        startDayHour,
+        endDayHour,
+        cellDuration: 60,
+        scrolling: {
+            mode: 'virtual',
+        },
+        groups: ['Caption'],
+        resources: [{
+            fieldExpr: 'Caption',
+            dataSource: resources,
+            label: 'Operators'
+        }]
+    });
+</script>

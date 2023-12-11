@@ -1,0 +1,75 @@
+﻿@model Etwin.DAL.Models.InputControlPageViewModel;
+
+@using DevExtreme.AspNet.Mvc;
+@using System.Linq;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml"; ;
+}
+<style>
+    /* Stile del popup */
+    .popup-container {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+    }
+
+    .popup-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #ccc;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    /* Stile del pulsante di chiusura */
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+</style>
+
+<div class="popup-container" id="myPopup">
+    <div class="popup-content">
+        <span class="close" id="closePopup">&times;</span>
+        <h2>Popup Title</h2>
+        <p>Contenuto del popup.</p>
+    </div>
+</div>
+
+<script>
+    // Riferimento all'elemento del popup
+    var popup = document.getElementById("myPopup");
+
+    // Riferimento al pulsante di chiusura
+    var closePopup = document.getElementById("closePopup");
+
+    // Mostra il popup quando si fa clic su un elemento di attivazione (ad esempio, un pulsante)
+    function openPopup() {
+        popup.style.display = "block";
+    }
+
+    // Chiudi il popup quando si fa clic sul pulsante di chiusura
+    closePopup.onclick = function () {
+        popup.style.display = "none";
+    }
+
+    // Chiudi il popup quando si fa clic al di fuori del contenuto del popup
+    window.onclick = function (event) {
+        if (event.target == popup) {
+            popup.style.display = "none";
+        }
+    }
+
+</script>

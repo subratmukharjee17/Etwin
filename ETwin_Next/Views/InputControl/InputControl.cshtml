@@ -1,0 +1,331 @@
+﻿    @model Etwin.DAL.Models.InputControlPageViewModel;
+
+@using DevExtreme.AspNet.Mvc;
+@using System.Linq;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml"; ;
+}
+
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "InputControlForm", @class = "w-100" }))
+{
+    <div class="w-50 mx-auto">
+        <div class="dx-fieldset">
+            <div class="dx-fieldset-header">@Model.PageTitle</div>
+            @foreach (var control in Model.InputControlModel)
+            {
+                var ControlID = @control.TableColumn;
+                var ReadOnly = @control.ReadOnly == true ? true : false;
+                var Visible = @control.Visible == false ? false : true;
+                var Required = @control.Required == true ? "valuerequired" : "";
+
+                <input type="hidden" value="@control.DatabaseTable" id="hdnDataBaseTable_@ControlID" />
+                @if (@control.IdControlType == 1)
+                {
+                    <div class="dx-field">
+                        <div class="dx-field-label">
+                            @Html.Label(@control.ColumnText)
+                        </div>
+                        <div class="dx-field-value">
+                            @(Html.DevExtreme().TextBox()
+                                .Mode(TextBoxMode.Text)
+                                .ID(@ControlID)
+                                .Name(@control.TableColumn)
+                                .ReadOnly(@ReadOnly)
+                                .ElementAttr("class", @Required)
+                                .Visible(@Visible)
+                                )
+                            @if (@control.Required)
+                            {
+                                @Html.Label("","Please enter "+@control.ColumnText,new{ id="Error"+@control.TableColumn,Class="lblErrorValidation",Style="display:none;color:red"})
+                            }
+                        </div>
+                    </div>
+                }
+                else if (@control.IdControlType == 2 && @control.Datasource != null)
+                {
+                    <div class="dx-field">
+                        <div class="dx-field-label">
+                            @Html.Label(@control.ColumnText)
+                        </div>
+                        <div class="dx-field-value">
+                            @(Html.DevExtreme().SelectBox()
+                                .DataSource(@control.Datasource.ToList())
+                                .InputAttr("aria-label", "Select")
+                                .ElementAttr("class" , @Required )
+                                .ID(@ControlID)
+                                .Name(@control.TableColumn)
+                                .ReadOnly(@ReadOnly)
+                                .DisplayExpr("Value")
+                                .ValueExpr("Key")
+                                .Visible(@Visible)
+                                .OnValueChanged("OnValueChanged")
+                                )
+                            @if (@control.Required)
+                            {
+                                @Html.Label("","Please select "+@control.ColumnText,new{ id="Error"+@control.TableColumn,Style="display:none;color:red"})
+                            }
+                        </div>
+                    </div>
+                }
+                else if (@control.IdControlType == 3)
+                {
+                        //Check box
+                    <div class="dx-field">
+                        <div class="dx-field-label">
+                            @Html.Label(@control.ColumnText)
+                        </div>
+                        <div class="dx-field-value">
+                            @(Html.DevExtreme().CheckBox()
+                                .ID(@control.TableColumn)
+                                .Name(@control.TableColumn)
+                                .ReadOnly(@ReadOnly)
+                                .Visible(@Visible)
+                                .ElementAttr("class", @Required)
+                                )
+                            @if (@control.Required)
+                            {
+                                @Html.Label("","Please select "+@control.ColumnText,new{ id="Error"+@control.TableColumn,Style="display:none;color:red"})
+                            }
+                        </div>
+                    </div>
+                }
+                else if (@control.IdControlType == 4)
+                {
+                    //Date Picker
+                    <div class="dx-field">
+                        <div class="dx-field-label">
+                            @Html.Label(@control.ColumnText)
+                        </div>
+                        <div class="dx-field-value">
+                            @(Html.DevExtreme().DateBox()
+                                .InvalidDateMessage("The date must have the following format: MM/dd/yyyy")
+                                .ID(@control.TableColumn)
+                                .Name(@control.TableColumn)
+                                .ReadOnly(@ReadOnly)
+                                .Visible(@Visible)
+                                .ElementAttr("class", @Required)
+                                )
+                            if(@control.Required){
+                            @Html.Label("","Please enter "+@control.ColumnText,new{ id="Error"+@control.TableColumn,Style="display:none;color:red"})
+                            }
+                        </div>
+                    </div>
+                }
+                else if (@control.IdControlType == 5)
+                {
+                        //upload
+                    <div class="dx-field">
+                        <div class="dx-field-label">
+                            @Html.Label(@control.ColumnText)
+                        </div>
+                        <div class="dx-field-value">
+                            @(Html.DevExtreme().FileUploader()
+                                .ID(@control.TableColumn)
+                                .Name(@control.TableColumn)
+                                .SelectButtonText("Choose")
+                                .LabelText(@control.ColumnText)
+                                .Accept("image/*")
+                                .UploadMode(FileUploadMode.UseForm)
+                                .ElementAttr("class", @Required)
+                                )
+                            @if (@control.Required)
+                            {
+                                @Html.Label("","Please select "+@control.ColumnText,new{ id="Error"+@control.TableColumn,Style="display:none;color:red"})
+                            }
+                        </div>
+                    </div>
+                }
+                else if (@control.IdControlType == 6)
+                {
+                        //Text Area
+                    <div class="dx-field">
+                        <div class="dx-field-label">
+                            @Html.Label(@control.ColumnText)
+                        </div>
+                        <div class="dx-field-value">
+                            @(Html.DevExtreme().TextArea()
+                                .ID(@control.TableColumn)
+                                .Name(@control.TableColumn)
+                                .ReadOnly(@ReadOnly)
+                                .Visible(@Visible)
+                                .ElementAttr("class", @Required)
+                                )
+                            @if (@control.Required)
+                            {
+                                @Html.Label("","Please select "+@control.ColumnText,new{ id="Error"+@control.TableColumn,Style="display:none;color:red"})
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    //None
+                    <div class="dx-field">
+                        <div class="dx-field-label">
+                            @Html.Label(@control.ColumnText)
+                        </div>
+                        <div class="dx-field-value">
+                            @(Html.DevExtreme().TextBox()
+                                .ID(@control.TableColumn)
+                                .Mode(TextBoxMode.Text)
+                                .Name(@control.TableColumn)
+                                .ReadOnly(@ReadOnly)
+                                .Visible(@Visible)
+                                .ElementAttr("class", @Required)
+                                )
+                            @if (@control.Required)
+                            {
+                                @Html.Label("","Please enter "+@control.ColumnText,new{ id="Error"+@control.TableColumn,Style="display:none;color:red"})
+                            }
+                        </div>
+                    </div>
+                }
+
+            }
+        </div>
+        <div class="dx-fieldset d-flex justify-content-end">
+            @(Html.DevExtreme().ValidationSummary()
+                .ID("summary")
+
+                )
+            @(Html.DevExtreme().Button()
+                .Width("20%")
+                .Text("Save")
+                .Type(ButtonType.Success)
+                .OnClick("SaveInputControlInfo")
+                )
+        </div>
+    </div>
+}
+
+
+
+<script>
+    $(document).ready(function () {
+        $form = $("#InputControlForm");
+        $('#InputControlForm').validate({
+            errorClass: 'help-block animation-slideDown', // You can change the animation class for a different entrance animation - check animations page
+            errorElement: 'div',
+            errorPlacement: function (error, e) {
+                e.parents('.form-group > div').append(error);
+            },
+            highlight: function (e) {
+                $(e).closest('.form-group').removeClass('has-success has-error').addClass('has-error');
+                $(e).closest('.help-block').remove();
+            },
+            success: function (e) {
+                e.closest('.form-group').removeClass('has-success has-error');
+                e.closest('.help-block').remove();
+            },
+        });
+
+    });
+    function OnValueChanged(e) {
+        $(e.element).val(e.value);
+    }
+    // Read a page's GET URL variables and return them as an associative array.
+    function GetUrlQuerystringparam() {
+        var vars = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (var i = 0; i < hashes.length; i++) {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
+    function SaveInputControlInfo(sender) {
+        $form = $("#InputControlForm");
+        $(".lblErrorValidation").css("display", "none");
+        if ($form.length) {
+            var isFormValid = true;
+            //$form.validate();
+            var operatorModel = new Object();
+            $form.find(':input').each(function (index, ele) {
+                var eleID = $(ele).attr('id');
+                if (ele.type == 'hidden' && eleID !== undefined && eleID.indexOf('hdnDataBaseTable') !== -1) {
+                    operatorModel.TableName = $(this).val();
+                }
+               // if (ele.type == 'text' && $(ele).parent().parent().parent().parent().find("#Error"+ele.id).length>0) {
+                if (ele.type == 'text' && $("#" + ele.id).hasClass("valuerequired")) {
+                    var prop = $(ele).attr('id');
+                    if ($(ele).attr("aria-label") == undefined) {
+                        if ($(ele).val() == '') {
+                            isFormValid = false;
+                            return;
+                        }
+                        operatorModel[prop] = $(ele).val();
+                    }
+                    else if ($(ele).attr("aria-label") == 'Select') {
+                        if ($("#" + ele.id).val() == '') {
+                            isFormValid = false;
+                            return;
+                        }
+                        operatorModel[prop] = $("#" + ele.id).val();
+                    }
+                }
+            });
+            if (isFormValid) {
+                $.ajax({
+                    url: '@Url.Action("SubmitInputControlData", "InputControl")',
+                    type: "POST",
+                    data: { OperatorModel: operatorModel },
+                    success: function (resultData) {
+                        if (resultData){
+                            //ClearInputFields();
+                            alert("Operators data saved successfully");
+                            window.location.href = '/InputControl/InputControl?menuId=' + GetUrlQuerystringparam()["menuId"];
+                        }
+                        else{
+                            alert("Error while saving Operators data.");
+                        }
+                    },
+                    error: function (data) {
+                        alert("error");
+                    }
+                })
+            }
+            else {
+                // If form is invalid, display validation errors
+                $form.find(':input').each(function (index, ele) {
+                    if (ele.type == 'text') {
+                        var prop = $(ele).attr('id');
+                        if ($(ele).attr("aria-label") == undefined) {
+                            if ($(ele).val() == '') {
+                                $("#Error" + ele.id).css("display", "block");
+                            }
+                            else {
+                                $("#Error" + ele.id).css("display", "none");
+                            }
+                        }
+                        else if ($(ele).attr("aria-label") == 'Select') {
+                            if ($("#" + ele.id).val() == '') {
+                                $("#Error" + ele.id).css("display", "block");
+                            }
+                            else {
+                                $("#Error" + ele.id).css("display", "none");
+                            }
+
+                        }
+                    }
+                });
+
+            }
+        }
+    }
+
+    function ClearInputFields(){
+        $form.find(':input').each(function (index, ele) {
+            if (ele.type == 'text') {
+                var prop = $(ele).attr('id');
+                if ($(ele).attr("aria-label") == undefined) {
+                    $(ele).val("");
+                }
+                else if ($(ele).attr("aria-label") == 'Select') {
+                    $(ele).attr("aria-label", "Select");
+                }
+            }
+        });
+    }
+</script>

@@ -1,0 +1,95 @@
+﻿/*Responsive Phone part*/
+@media(max-width: 450px) {
+    company_logo {
+        display: none;
+    }
+
+    #wrapper #content-wrapper {
+        width: 100%;
+    }
+
+    #text {
+        font-size: 1rem;
+        display: inline-block;
+    }
+
+    .navbar {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        height: 8%;
+        background: none;
+        margin-left: 0px;
+        margin-top: 0;
+        float: right;
+        width: 100%;
+        padding-right: 10px;
+    }
+
+    .container_button {
+        display: flex;
+        align-items: center;
+        padding: 0px;
+        background: none;
+    }
+
+    #sidebarToggle {
+        float: right;
+        border: none;
+        margin-right: 0px;
+        background: none;
+        background: darkgray;
+        border-radius: 50px;
+    }
+
+    #sidebarToggle, #sidebarToggleLeft {
+        width: 2rem;
+        height: 2rem;
+        text-align: center;
+        cursor: pointer;
+    }
+}
+
+@media(min-width: 450px) {
+    #sidebarToggle {
+        float: right;
+        border: none;
+        margin-right: 20px;
+        background: none;
+        background: darkgray;
+        border-radius: 50px;
+    }
+
+    #sidebarToggle, #sidebarToggleLeft {
+        width: 2.5rem;
+        height: 2.5rem;
+        text-align: center;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+    }
+}
+
+@media(min-width: 450px) {
+    .navbar {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        height: 8%;
+        background: none;
+        margin-left: 40px;
+        margin-top: 0;
+        float: right;
+    }
+}
+
+@media(min-width: 450px) {
+    .container_button {
+        display: flex;
+        align-items: center;
+        background: none;
+    }
+}

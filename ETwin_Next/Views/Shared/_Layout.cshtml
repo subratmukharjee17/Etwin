@@ -1,0 +1,870 @@
+﻿@using DevExtreme.AspNet.Mvc;
+@using Etwin.Model;
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Virevo</title>
+    <link rel="icon" href="~/images/favicon.png" type="image/x-icon" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,400;1,700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="https://kit.fontawesome.com/f17f7209ca.css" crossorigin="anonymous">
+    <link href="~/css/font-awesome.css" rel="stylesheet" />
+    <link href="~/css/sb-admin-2.css" rel="stylesheet">
+    <link href="~/css/devextreme/bootstrap.css" rel="stylesheet" />
+    <link href="~/css/_Layout/Responsive.css" rel="stylesheet" />
+    <link href="~/css/_Layout/DropDown.css" rel="stylesheet" />
+    <link href="~/css/_Layout/General.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link href="~/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    @* Styles included for theme builder *@
+    <link rel="dx-theme" data-theme="generic.light" href="~/css/devextreme/dx.light.css" data-active="true">
+    <link rel="dx-theme" data-theme="generic.darkviolet" href="~/css/devextreme/dx.darkviolet.css" data-active="false">
+    <link rel="dx-theme" data-theme="generic.dark" href="~/css/devextreme/dx.dark.css" data-active="false">
+    <link rel="dx-theme" data-theme="generic.carmine" href="~/css/devextreme/dx.carmine.css" data-active="false">
+    <link rel="dx-theme" data-theme="generic.darkmoon" href="~/css/devextreme/dx.darkmoon.css" data-active="false">
+    <link rel="dx-theme" data-theme="generic.softblue" href="~/css/devextreme/dx.softblue.css" data-active="false">
+    <link rel="dx-theme" data-theme="generic.contrast" href="~/css/devextreme/dx.contrast.css" data-active="false">
+    <link rel="dx-theme" data-theme="generic.greenmist" href="~/css/devextreme/dx.greenmist.css" data-active="false">
+
+    @* Link for javascript function *@
+    <script src="~/js/devextreme/jquery.js"></script>
+    <script src="~/js/devextreme/bootstrap.js"></script>
+    <script src="~/js/devextreme/dx.all.js"></script>
+    <script src="~/js/devextreme/aspnet/dx.aspnet.mvc.js"></script>
+    <script src="~/js/devextreme/aspnet/dx.aspnet.data.js"></script>
+
+    @* Links that allow downloading of PDF or Excel *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.4.0/polyfill.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.1.1/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.2/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    @* Links for other page in javascript*@
+    <script src="~/js/_Layout/Responsive.js"></script>
+    <script src="~/js/_Layout/Chart.js"></script>
+    <script src="~/js/_Layout/Grid.js"></script>
+    <script src="~/js/_Layout/Scheduler.js"></script>
+    
+    <style>
+        * {
+            font-family: Roboto;
+        }
+
+        .dropdown-content button {
+            color: black;
+            padding: 5px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+            border: none;
+            background-color: transparent;
+        }
+
+            .dropdown-content button:hover {
+                background-color: red;
+                transition: background-color 1s;
+            }
+
+    </style>
+
+    @RenderSection("Styles", required: false)
+</head>
+
+<body id="page-top">
+    <!-- Loader -->
+    <div id="loading-overlay" style="display: none;">
+        <div class="loading-popup">
+            <img src="~/images/loading.gif" style="width: 80px; height: 80px;" />
+        </div>
+    </div>
+    <!-- Loader -->
+
+    <div id="wrapper">
+        <!--Start left menu-->
+        <div class="company_logo company_logo_dimension" id="menu">
+            <div class="logo" id="toggleMobile">
+                <a class="sidebar-brand d-flex align-items-center justify-content-center" id="linkCompany" href="">
+                    @* <img src="../CompanyLogo/virevo-logo.png" class="img-fluid" id="imgLogo" /> *@
+                    <img src="" class="img-fluid" id="imgLogo" />
+                </a>
+            </div>
+            <div id="backToggle_container">
+                <div class="backbutton_container" id="backDiv">
+                    <button id="sidebarToggleLeft" onclick="LevelBack()" style="display:none;"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <div id="togglebutton_container">
+                    <button id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                </div>
+            </div>
+
+            <!-- Topbar Search -->
+            <div class="input-group">
+                <i class="fas fa-search searchclick"></i>
+                <input type="text" class="txtSearch" id="txtSearch" placeholder="Search here..."
+                       aria-label="Search" aria-describedby="basic-addon2"><span id="result"></span>
+            </div>
+            <ul class="sidebar accordion" id="SidebarAccordion"></ul>
+        </div>
+        <!-- End left Menu -->
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar" id="menuNav">
+                    <div class="container_button">
+                        <div class="topButton_Container dropdown">
+                            <button class="dropbtn"><i class="fas fa-cloud-upload-alt"></i></button>
+                            <div class="dropdown-content">
+                                <div class="sub-dropdown">
+                                    <input type="file" id="fileInput" style="display: none;">
+
+                                    <button class="btnDrawing"><i class="fa-duotone fa-compass-drafting btnIcon"></i>File 2D</button>
+                                    <div class="sub-dropdown-content">
+                                        <input type="file" id="folderInput" style="display: none;" webkitdirectory directory>
+                                        <button onclick="selectFolder()" class="btnDrawing"><i class="fa-regular fa-folder btnIcon"></i>Cartella</button>
+                                        <button onclick="selectFile()" class="btnDrawing"><i class="fa-regular fa-file btnIcon"></i>File</button>
+                                    </div>
+                                </div>
+                                <div class="sub-dropdown">
+
+                                    <button class="btnDrawing"><i class="fa-sharp fa-solid fa-cubes btnIcon"></i>File 3D</button>
+                                    <div class="sub-dropdown-content">
+                                        <input type="file" id="folderInput" style="display: none;" webkitdirectory directory>
+                                        <button onclick="selectFolder()" class="btnDrawing"><i class="fa-regular fa-folder btnIcon"></i>Cartella</button>
+                                        <button onclick="selectFile()" class="btnDrawing"><i class="fa-regular fa-file btnIcon"></i>File</button>
+                                    </div>
+                                </div>
+                                <div class="sub-dropdown">
+
+                                    <button class="btnDrawing"> <i class="fa-regular fa-file-circle-plus btnIcon"></i>Other File</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="topButton_Container">
+                            <button class=""><i class="fas fa-cloud-download-alt"></i></button>
+                        </div>
+                        <div class="topButton_Container">
+                            <button class=""><i class="fa-solid fa-print"></i></button>
+                        </div>
+
+                        <div class="topButton_Container">
+                            <button class=""><i class="fa-regular fa-circle-question"></i></button>
+                        </div>
+
+                        <div class="topButton_Container">
+                            <button class=""><i class="fa-duotone fa-layer-group"></i></button>
+                        </div>
+
+                        <div class="topButton_Container">
+                            <button class=""><img id="accountImage" /></button>
+                        </div>
+
+                    </div>
+                    <!-- Dropdown - Messages -->
+                    <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                         aria-labelledby="searchDropdown">
+                        <form class="form-inline mr-auto w-100 navbar-search">
+                            <div class="input-group">
+                                <input type="text" class="form-control bg-light border-0 small"
+                                       placeholder="Search for..." aria-label="Search"
+                                       aria-describedby="basic-addon2">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="button">
+                                        <i class="fas fa-search fa-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </nav>
+                <div class="container-fluid p-0">
+                    <main role="main" class="mainContainer">
+                        @RenderBody()
+                    </main>
+                </div>
+
+
+
+            </div>
+
+        </div>
+
+        <a class="scroll-to-top rounded" href="#page-top">
+            <i class="fas fa-angle-up"></i>
+        </a>
+
+        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-primary" id="logoutButton" href="~/Operators/LoginView">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @RenderSection("Scripts", required: false)
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+
+        function changeTheme(e) {
+            var selectedTheme = e.component.option("value");
+            //I save the theme that is set
+            window.localStorage.setItem("dx-theme", selectedTheme);
+            //I set the selected theme
+            DevExpress.ui.themes.current(selectedTheme || 'light');
+        }
+
+        function checkScreenSize() {
+            if (window.matchMedia("(max-width: 450px)").matches) {
+                var element = document.getElementById("imgLogo");
+                var toggle = document.getElementById("sidebarToggle");
+                var myDiv = document.getElementById("menuNav");
+                myDiv.insertBefore(toggle, myDiv.firstChild);
+                myDiv.insertBefore(element, myDiv.firstChild);
+                $('#menu').hide();
+            }
+        }
+        //When the page loads I check the screen size
+        window.onload = checkScreenSize();
+
+
+        async function selectFile() {
+            document.getElementById("fileInput").click();
+        }
+
+        async function selectFolder() {
+            document.getElementById("folderInput").click();
+        }
+
+        document.getElementById("folderInput").addEventListener("change", function (event) {
+            var formData = new FormData();
+            for (var file of event.target.files) {
+                formData.append(file.webkitRelativePath, file, file.name);
+            }
+            //debugger;
+            $.ajax({
+                url: '/Session/GetCSOperator',
+                success: function (data) {
+                    $.ajax({
+                        url: "/InputFile/Upload?CSOperatorLogin=" + data,
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                        }
+                    });
+                }
+            });
+
+        });
+
+        document.getElementById("fileInput").addEventListener("change", function (event) {
+            var formData = new FormData();
+            for (var file of event.target.files) {
+                formData.append(file.webkitRelativePath, file, file.name);
+            }
+            $.ajax({
+                url: '/Session/GetCSOperator',
+                success: function (data) {
+                    $.ajax({
+                        url: "/InputFile/Upload?CSOperatorLogin=" + data,
+                        type: "POST",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (result) {
+                        }
+                    });
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            var searchText = "";
+            $('#txtSearch').keypress(function (e) {
+                searchText = $('#txtSearch').val();
+                if (e.which === 13 || e.key === "Enter") {
+                    //  alert('Enter key pressed!');
+                    performSearch();
+                }
+            });
+
+            if (searchText === null || searchText === "" || searchText === '') {
+                accountImage();
+                companyLogo();
+                companyWebsite();
+                loadData(0, 0, null);
+                eventloader();
+            }
+        });
+
+
+
+
+        // Set data
+        var dataSource = [];
+        var series = [];
+
+
+        function accountImage() {
+            var operator = '';
+            //I take the operator from the session
+            $.ajax({
+                url: '/Session/GetOperatorCode',
+                success: function (data) {
+                    operator = data;
+                    // Once you get 'operator', make the second AJAX request
+                    $.ajax({
+                        url: "/OperatorCompany/GetAccountImage",
+                        type: "GET",
+                        data: { "opCode": operator },
+                        success: function (response) {
+                            if (response != null) {
+                                // debugger;
+                                var imgElement = document.getElementById("accountImage");
+                                imgElement.src = ".." + response;
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function companyLogo() {
+            $.ajax({
+                url: '/Session/GetCompanyLogo',
+                success: function (data) {
+                    var imgElement = document.getElementById("imgLogo");
+                    imgElement.src = "../" + data;
+                }
+            });
+        }
+
+        function companyWebsite(){
+            $.ajax({
+                url: '/Session/GetCompanyWebsite',
+                success: function (data) {
+                    //debugger;
+                    var webSite = document.getElementById("linkCompany");
+                    webSite.href = "";
+                    webSite.href = data;
+                }
+            });
+            companyWebsite
+        }
+
+        //EventLoader for methods that start automatically
+        function eventloader() {
+            $.ajax({
+                url: "/Event/GetEvent",
+                type: "GET"
+
+            });
+        }
+        var allowDragDrop = false;
+        var levelType = "LevelOne";
+
+        var IdDepartment = 0
+
+        //Load Data function all menus, grids, charts and schedulers start from this method
+        function loadData(menuId, typ, opcode, fromsearch) {
+            showLoader();
+
+            RedirectionPage(menuId);
+            if (typ == "1") {
+                IdDepartment = menuId;
+            }
+            else if (typ == "6" && fromsearch == true) {
+                IdDepartment = opcode;
+            }
+            $.ajax({
+                url: "/Department/GetMenuList",
+                type: "GET",
+                data: { "MenuId": menuId, "Type": typ, "idDepartment": IdDepartment },
+                success: function (response) {
+                    if (response == "No-data") {
+                        hideLoader();
+                        alert("No data available");
+                    }
+                    else if (response == "opcode-empty") {
+                        hideLoader();
+                        window.location.href = '/Operators/LoginView';
+                    }
+                    //Open the TimeBound
+                    else if (response.contrlNme == "TimeBound") {
+                        hideLoader();
+                        window.location.href = '/TimeBound/Operator?idDepartment=' + IdDepartment;
+                    }
+                    else if (response.page == "RealBound" || response.page == "Timbature" || response.page == "Presenze") {
+                        hideLoader();
+                        if (response.page == "RealBound")
+                            window.location.href = '/TimeBound/RealBound';
+                        else if (response.page == "Timbature")
+                            window.location.href = '/TimeBound/Timbature';
+                        else
+                            window.location.href = '/TimeBound/Presenze';
+                    }
+                    else if (response.contrlNme == "InputControl") {
+                        // debugger;
+                        hideLoader();
+                        window.location.href = '/InputControl/InputControl?menuId=' + menuId;
+                    }
+                    if (parseInt(typ) == 6) {
+                        closeMenu();
+                        //I open a control with the data in response
+                        getActiveView(response.menuType);
+                        if (response.menuType == '7') {
+                            //CHART
+                            dataSource = response.lstData;
+                            selectChart(dataSource, response);
+                        }
+                        if (response.menuType == '8') {
+                            //GRID
+                            gridSetup(response)
+                        }
+                        if (response.menuType == '9') {
+                            //SCHEDULER
+                            bindScheduler(response.lstData.appointments, response.lstData.resources, response.lstData.schedulersettings)
+                        }
+                    }
+                    else {
+
+                        //If it's not a control it means it's navigating the menu
+                        var html = '';
+
+                        var result = '';
+                        if (typeof response !== "string") {
+                            result = response;
+                        }
+                        else {
+                            result = JSON.parse(response);
+                        }
+
+                        var resultData = result.lstDepartment;
+                        typ = result.menuType;
+                        $.each(resultData, function (key, item) {
+                            //MENU LEVEL
+                            html += '<li class="nav-item">';
+                            html += '<a  href="#" data-target="#"';
+                            //I create the items that make up the menu
+                            if (typ == "1") {
+                                html += 'aria-expanded="true" class="nav-link collapsed" aria-controls="collapseTwo"  onclick="loadData(' + item.idDepartment + ',' + typ + ')">';
+
+                            }
+                            else if (typ == "2") {
+                                html += 'aria-expanded="true" class="nav-link collapsed" aria-controls="collapseTwo" onclick="loadData(' + item.id + ',' + typ + ')">';
+
+                            }
+                            else if (typ == "6") {
+                                html += 'aria-expanded="true" class="nav-link collapsed levelthree' + item.id + '" aria-controls="collapseTwo" onclick="loadData(' + item.id + ',' + typ + ')">';
+                            }
+                            //if they have an icon I add it
+                            if (item.iconName != null) {
+                                html += '<i class="' + item.iconName + '"id="iconMenu"></i>'
+                                // html += '<img src="../images/iconMenu/' + item.iconName + '.png" id="iconMenu"></img>';
+                            } if (typ == "1") {
+                                html += '<span class="hidePart" id="text">' + item.description + '</span>';
+                            }
+                            else if (typ == "2") {
+                                html += '<span id="text">' + item.ribbonPageGroupTitle; + '</span>';
+                            }
+                            else if (typ == "6") {
+                                html += '<span id="text">' + item.ribbonPageGroupButtonTitle; + '</span>';
+                            }
+
+                        });
+
+                        if (parseInt(typ) == 1) {
+                            $('#sidebarToggleLeft').hide();
+                            levelType = "LevelOne";
+                        }
+                        else if (parseInt(typ) == 2) {
+                            if (window.matchMedia("(max-width: 450px)").matches) {
+                                var navLinkSpans = document.querySelectorAll('.sidebar .nav-item .nav-link span');
+                                navLinkSpans.forEach(function (span) {
+                                    span.style.fontSize = '1rem';
+                                    span.style.display = 'inline-block';
+                                });
+                            }
+                            if ($("#accordionSidebar").offsetParent().hasClass("toggled")) {
+                                $('.company_logo div').css({ 'justify-content': 'center' });
+                                $('#togglebutton_container').css({ 'margin-right': '0px' });
+                                $('#sidebarToggle').css({ 'margin-right': '0px' });
+                                $('#col-6').removeClass('company_logo_dimension');
+                                $('.sidebar .collapse').collapse('hide');
+                                $('#backbtn').hide();
+                                $('.searchbar').hide();
+                                $('#sidebarToggleLeft').hide();
+                            }
+                            else {
+                                $('#sidebarToggleLeft').show();
+                            }
+                            levelType = "LevelTwo";
+                        }
+                        else if (parseInt(typ) == 6) {
+                            if (window.matchMedia("(max-width: 450px)").matches) {
+                                var navLinkSpans = document.querySelectorAll('.sidebar .nav-item .nav-link span');
+                                navLinkSpans.forEach(function (span) {
+                                    span.style.fontSize = '1rem';
+                                    span.style.display = 'inline-block';
+                                });
+                            }
+                            if ($("#accordionSidebar").offsetParent().hasClass("toggled")) {
+                                $('.company_logo div').css({ 'justify-content': 'center' });
+                                $('#togglebutton_container').css({ 'margin-right': '0px' });
+                                $('#sidebarToggle').css({ 'margin-right': '0px' });
+                                $('#col-6').removeClass('company_logo_dimension');
+                                $('.sidebar .collapse').collapse('hide');
+                                $('#backbtn').hide();
+                                $('.searchbar').hide();
+                                $('#sidebarToggleLeft').hide();
+
+                            }
+                            else {
+                                $('#sidebarToggleLeft').show();
+                            }
+
+                            levelType = "LevelThree";
+                        }
+                        $('#SidebarAccordion').html(html);
+
+                    }
+                    hideLoader();
+                },
+                error: function (errormessage) {
+                    alert(errormessage.responseText);
+                    hideLoader();
+                }
+            });
+
+        }
+
+        function closeMenu() {
+            //In this method the menu is closed by clicking on the toggle
+            if (window.matchMedia("(max-width: 450px)").matches) {
+                var companyLogo = document.querySelector('.company_logo');
+                var element = document.getElementById("imgLogo");
+                var toggle = document.getElementById("sidebarToggle");
+                var myDiv = document.getElementById("menuNav");
+                myDiv.insertBefore(toggle, myDiv.firstChild);
+                myDiv.insertBefore(element, myDiv.firstChild);
+                $('#menu').hide();
+                companyLogo.style.width = '0%';
+                companyLogo.style.display = 'none !important';
+                $('.container-fluid').show();
+
+                var contentWrappers = document.querySelectorAll('#wrapper #content-wrapper');
+                contentWrappers.forEach(function (contentWrapper) {
+                    contentWrapper.style.display = 'flex !important';
+                    contentWrapper.style.width = '100%';
+                });
+            }
+        }
+
+        function LevelBack() {
+            if (levelType == "LevelTwo") {
+                loadData(1, 5);
+            }
+            if (levelType == "LevelThree") {
+                loadData(2, 4);
+                levelType = "LevelTwo";
+
+            }
+        }
+
+        function RedirectionPage(menuId) {
+            if (menuId == 130) {
+                if (menuId == 130) {
+                    window.location.href = "/Department/Index?Active=IsTimebound";
+                }
+            }
+        }
+
+        // var searchText = ""; // Variabile per memorizzare il testo
+
+        // $(".txtSearch").on("input", function () {
+        //     performSearch();
+        // });
+
+        txtSearch.oninput = function () {
+            performSearch(txtSearch.value);
+        };
+
+
+        function performSearch(val) {
+            var searchText = val;
+            if (searchText !== null && searchText !== "") {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Department/GetSearchResult',
+                    data: { searchText: searchText },
+                    success: function (response) {
+                        //   debugger;
+                        BindSearchCriteriaData(response);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+            else{
+                loadData(0, 0, null);
+            }
+        }
+
+        function BindSearchCriteriaData(response) {
+            // debugger;
+            var html = '';
+            var result = '';
+            $.each(response, function (key, item) {
+                // MENU LEVEL
+                html += '<span id="textDepartment" style="font-size: 0.65rem; font-weight: bold; color:#ff330d;margin-left: 10px;">';
+                html += item.page;
+                html += '</span>';
+                html += '<li class="nav-item">';
+                html += '<a href="#" data-target="#" style="padding-top: 0;" aria-expanded="true" class="nav-link collapsed levelthree' + item.id + '" aria-controls="collapseTwo" onclick="loadData(' + item.id + ',6,' + item.idDepartment + ',true)">';
+                // Add menu text
+                
+                html += '<span id="text" style="margin-left: 20px;">';
+                html += item.name;
+                html += '</span>';
+
+                // Close the tags
+                html += '</a>';
+                html += '</li>';
+            });
+
+            $('#SidebarAccordion').html(html);
+
+        }
+
+
+
+
+        var selectedRowIndex = -1;
+
+
+        //ViewActive Container
+        function getActiveView(viewType) {
+            var gridContainer = document.getElementById('gridContainer');
+            var treeList = document.getElementById('treeList');
+            var chartContainer = document.getElementById('chartContainer');
+            var schedulerContainer = document.getElementById('schedulerContainer');
+            var rangeSelector = document.getElementById('rangeSelector');
+            addSDA.option('visible', false);
+
+
+            if (viewType === '7') {
+                // CHART
+                chartContainer.style.backgroundColor = 'white';
+                rangeSelector.style.backgroundColor = 'white';
+                // I display the chart
+                chartContainer.style.display = 'block';
+                rangeSelector.style.display = 'block';
+
+                // I don't see the grid and scheduler
+                gridContainer.style.display = 'none';
+                schedulerContainer.style.display = 'none';
+                $('.theme').css({
+                    'transform': 'translate(30px, 81px)'
+                });
+                theme.option('visible', true);
+
+            }
+
+            else if (viewType === '8') {
+                // GRID
+                gridContainer.style.backgroundColor = 'white';
+                //I display the grid
+                gridContainer.style.display = 'block';
+                //I don't see the chart and the scheduler
+                rangeSelector.style.display = 'none';
+                chartContainer.style.display = 'none';
+                schedulerContainer.style.display = 'none';
+                addSDA.option('visible', true);
+                $('.theme').css({
+                    'transform': 'translate(30px, 81px)'
+                });
+                theme.option('visible', true);
+
+            }
+
+            else if (viewType === '9') {
+                // SCHEDULER
+                schedulerContainer.style.background = 'white';
+                //I display the scheduler
+                schedulerContainer.style.display = 'block';
+                //I don't see the chart and the scheduler
+                chartContainer.style.display = 'none';
+                gridContainer.style.display = 'none';
+                rangeSelector.style.display = 'none';
+                $('.theme').css({
+                    'transform': 'translate(300px, 110px)'
+                });
+                theme.option('visible', true);
+
+            }
+        }
+
+        const theme = $('.theme').dxSelectBox({
+            valueExpr: "theme",
+            displayExpr: "name",
+            //I set the default themes
+            dataSource: [
+                { name: "Light", theme: "generic.light" },
+                { name: "Dark", theme: "generic.dark" },
+                { name: "Carmine", theme: "generic.carmine" },
+                { name: "Dark Moon", theme: "generic.darkmoon" },
+                { name: "Soft Blue", theme: "generic.softblue" },
+                { name: "Dark Violet", theme: "generic.darkviolet" },
+            ],
+            onSelectionChanged: changeTheme,
+            width: "200px",
+            placeholder: "Seleziona un tema...",
+            searchEnabled: true,
+            visible: false,
+        }).dxSelectBox('instance');
+
+        $.ajax({
+            url: "/Theme/GetAllTheme",
+            success: function (response) {
+                var selectBox = $('.theme').dxSelectBox('instance');
+                selectBox.option('dataSource', selectBox.option('dataSource').concat(response));
+            }
+        });
+
+
+        //ADD ROW
+        const addSDA = $('#action-add').dxSpeedDialAction({
+            label: 'Add row',
+            icon: 'add',
+            visible: false,
+            index: 1,
+            onClick() {
+                grid.addRow();
+            },
+        }).dxSpeedDialAction('instance');
+
+        //UPDATE ROW
+        const editSDA = $('#action-edit').dxSpeedDialAction({
+            label: 'Edit row',
+            icon: 'edit',
+            index: 3,
+            visible: false,
+            onClick() {
+                grid.editRow(selectedRowIndex);
+                grid.deselectAll();
+            },
+        }).dxSpeedDialAction('instance');
+
+        //DELETE ROW
+        const deleteSDA = $('#action-remove').dxSpeedDialAction({
+            icon: 'trash',
+            label: 'Delete row',
+            index: 2,
+            visible: false,
+            onClick() {
+                grid.deleteRow(selectedRowIndex);
+                grid.deselectAll();
+            },
+        }).dxSpeedDialAction('instance');
+
+
+
+
+
+        function comboBoxGridAjax(column) {
+            return new Promise(function (resolve, reject) {
+                console.log("Promessa start---")
+                $.ajax({
+                    url: "/DataGrid/ExecuteGenericQuery",
+                    method: "POST",
+                    data: JSON.stringify({ "query": column.query }),
+                    contentType: "application/json",
+                    dataType: "json", //Use "json" to get a JSON response from the server
+                    cache: false,
+                    success: function (response) {
+                        if (response != null) {
+                            resolve(response);
+                        } else {
+                            reject("La risposta è vuota o non valida.");
+                        }
+                    },
+                    error: function (error) {
+                        reject(error);
+                    }
+                });
+                console.log("Promessa end---")
+
+            });
+        }
+
+        var getGridInstance = function () {
+            return $("#gridContainer").dxDataGrid("instance");
+        }
+
+        var addRow = function () {
+            getGridInstance().addRow();
+            getGridInstance().deselectAll();
+
+        }
+
+        var deleteRow = function () {
+            getGridInstance().deleteRow(selectedRowIndex);
+            getGridInstance().deselectAll();
+
+        }
+
+        var editRow = function () {
+            getGridInstance().editRow(selectedRowIndex);
+            getGridInstance().deselectAll();
+        }
+
+        //Types of charts
+        const types = ['area', 'stackedarea', 'fullstackedarea'];
+
+        function showLoader() {
+            $("#loading-overlay").show();
+        }
+
+        function hideLoader() {
+            $("#loading-overlay").hide();
+        }
+    </script>
+
+</body>
+
+</html>

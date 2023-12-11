@@ -1,0 +1,403 @@
+﻿@using DevExtreme.AspNet.Mvc
+@using Etwin.DAL.Models
+@using System.Web;
+@model Etwin.DAL.Models.TimeBoundViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //Layout = "~/Views/Shared/_LayoutTimebound.cshtml"; ;
+    ViewData["Title"] = "WorkPhases";
+}
+@section Styles {
+    <style>
+        #tileViewContainer {
+            overflow: auto;
+            width: 98%;
+            background: #eee;
+        }
+
+        #tileView {
+            height: 91vh !important;
+        }
+
+        .dx-item {
+            transition: all 0.3s;
+        }
+
+            .dx-item:hover {
+                transform: scale(1.05) !important;
+            }
+
+        .dx-scrollable-wrapper {
+            position: relative;
+            width: 100%;
+            height: auto;
+        }
+
+        .page-margin-default {
+            margin: 0px 0px 0px 15px;
+        }
+
+        .dx-tile {
+            color: #333;
+            background-color: #fff;
+            border: 1px solid rgba(221,221,221,.6);
+            text-align: left;
+            float: left;
+            height: 170px !important;
+            width: 275px !important;
+            margin: 10px !important;
+        }
+
+        #titleName {
+            font-size: 16px;
+        }
+
+        #ambitoTile {
+            display: inline;
+        }
+
+        .contextButtonContainer {
+            display: block;
+            width: 100%;
+            height: 20%;
+        }
+
+
+
+        .tileNames {
+            color: white;
+            width: 50%;
+        }
+
+            .tileNames div {
+                width: 60%;
+                margin-left: 20px;
+            }
+
+
+        .tilesCircle {
+            float: left;
+        }
+
+        .ContainerCircleText {
+            width: 100%;
+            height: 80%;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .contextButton {
+            margin: 2px;
+            width: 30%;
+            height: 100%;
+            padding: 2px;
+            border: 1px solid white;
+            font-size: 10px;
+            background-color: transparent;
+            color: white;
+            transition: 0.5s;
+        }
+
+            .contextButton:hover {
+                background: #FF330D;
+            }
+
+        .activityMenuDropDown {
+            /* display: none; */
+            display: block;
+            position: absolute;
+            background-color: #FF330D;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+            .activityMenuDropDown button {
+                display: block;
+                margin: 2px;
+                width: 100%;
+                height: 30px;
+                padding: 2px;
+                border: 1px solid white;
+                font-size: 10px;
+                background-color: #FF330D;
+                color: white;
+            }
+
+                .activityMenuDropDown button:hover {
+                    font-weight: bold;
+                }
+
+        #phaseActivity:hover .activityMenuDropDown {
+            display: block;
+        }
+
+        #backButtonTimebound {
+            width: 100%;
+            margin: 10px;
+        }
+
+            #backButtonTimebound button {
+                float: right;
+                background: darkgray;
+                color: black;
+                font-weight: bold;
+                margin-left: 20px !important;
+                border-radius: 4px;
+                transition: 0.5s;
+                border: none;
+            }
+
+                #backButtonTimebound button:hover {
+                    background: #FF330D;
+                    color: white;
+                }
+    </style>
+}
+
+@*<div class="page-margin-default"><h3>FasiDiLavoro</h3></div>*@
+
+<div class="header-container d-flex justify-content-between" id="backButtonTimebound">
+    <button class="back-button m-0" onclick="window.history.back()">
+        BACK
+    </button>
+</div>
+
+<div id="tileViewContainer" class="tileViewContainer ">
+    <div id="tileView" class="page-margin-default"></div>
+</div>
+
+
+@section Scripts {
+
+
+    <script>
+        function getColoreStatoOperatore(stato) {
+            var color = "white";
+            switch (stato) {
+
+                case "1":
+                    color = "darkgray";
+                    break;
+                case "2":
+                    color = "#e2b112";
+                    break;
+                case "3":
+                    color = "steelblue";
+                    break;
+                case "4":
+                    color = "red";
+                    break;
+                default:
+                    color = "darkgray";
+                    break;
+            }
+
+            return color;
+        }
+        function getRandomIndex(maxIndex) {
+            return Math.floor(Math.random() * maxIndex);
+        }
+
+        // Function to get a random color from the array
+        function getRandomColor() {
+            var colors = ["green", "orange", "yellow", "blue", "black", "red"];
+            var randomIndex = getRandomIndex(colors.length);
+            return colors[randomIndex];
+        }
+
+        var lstTimbratore = @Html.Raw(Json.Serialize(Model.LstTimbratore));
+        var clickedTileText;
+        var tileClickCount = 0;
+
+        // Define variables for click tracking
+        var clickCount = 0;
+        var clickTimer;
+        var doubleClickThreshold = 4000; // 1 seconds is 1000 milliseconds
+        $("#tileView").dxTileView({
+            dataSource: lstTimbratore,
+            direction: "horizontal",
+            //itemMargin: 10,
+            //itemWidth: 200,
+            //itemHeight: 200,
+            itemTemplate: function (itemData, itemIndex, itemElement) {
+                var tileId = "tile-" + itemData.immagine;
+                var text = itemData.titoloTimbratore;
+
+                var controlColourID = itemData.controlState;
+                var color = getColoreStatoOperatore(controlColourID);
+                var randomColor = getRandomColor();
+
+                var initials = text.length >= 2 ? text.substring(0, 2) : text.substring(0, 1);
+
+                // Seleziona il div all'interno del dxTileView
+                var tileDiv = $("#tileView .dx-item.dx-tile ");
+                tileDiv.attr("id", "TileId");
+
+                var scrollDiv = $(".dx-scrollable-wrapper");
+                scrollDiv.attr("id", "scrollTileContainer");
+
+                var tileContent = $("<div>")
+                    .addClass("tile-item") // Add the 'tile-item' class to each tile
+                    .css({
+                        "background-color": color,
+                        "height": "100%",
+                        "width": "100%",
+                        "padding": "7px",
+                        "border-radius": "5px",
+                        "display": "flex",
+                        "flex-direction": "column",
+                        "align-items": "center"
+                    })
+                    .append(
+                        $("<div>")
+                            .addClass("ContainerCircleText")
+                            .append(
+                                /*Tile Items' Circle*/
+                                $("<div>")
+                                    .addClass("tileCircle")
+                                    .css({
+                                        "font-size": "20px",
+                                        "font-weight": "bold",
+                                        "margin-right": "10px",
+                                        "background-color": randomColor,
+                                        "color": "#fff",
+                                        "height": "80px",
+                                        "width": "80px",
+                                        "border-radius": "50%",
+                                        "display": "flex",
+                                        "align-items": "center",
+                                        "justify-content": "center"
+                                    })
+                                    .text(initials),
+
+                                /*Tile Items' names*/
+                                $("<div>")
+                                    .addClass("tileNames")
+                                    .css({
+                                        "display": "flex",
+                                        "flex-direction": "column"
+                                    })
+                                    .append(
+                                        $("<div>")
+                                            .css({
+                                                "font-size": "12px",
+                                                "font-weight": "bold"
+                                            })
+                                            .html(text)
+                                    )
+
+                            )
+                    )
+
+                    .on("click", function () {
+                        $(document).ready(function () {
+                            showLoader();
+                            var s = itemData.titoloTimbratore;
+                            var extractedValue = null;
+                            // Use regular expression to extract the value between <SIZE> tags
+                            var match = s.match(/<SIZE=\d+>(.*?)<\/SIZE>/);
+
+                            if (match) {
+                                extractedValue = match[1];
+                            } else {
+                                console.log("Value not found");
+                            }
+
+                            //GET URL
+                            var url = window.location.href;
+                            //SET URL OBJECT
+                            var urlObject = new URL(url);
+                            //GET URL PARAMETER
+                            var idDepartment = urlObject.searchParams.get('IdDepartment');
+                            var phaseCode = encodeURIComponent(extractedValue);
+                            var operatorCode = urlObject.searchParams.get('operatorCode');
+                            var IdPhaseState = urlObject.searchParams.get('PhaseState');
+                            var idPhaseActivity = urlObject.searchParams.get('IdPhaseActivity');
+                            if (itemData.controlState !== "1") {
+                                //DECLARATE AN ERROR PHASE OR DEPARTMENT PHASE
+                                var idPhase = getPhaseId(phaseCode);
+                                
+                                handlePhaseClick(itemData, operatorCode, idPhase, IdPhaseState, idPhaseActivity)
+                                    .then(function (data) {
+                                        // Optionally, you can add further handling here if needed
+                                        return UpdateOperatorState(IdPhaseState, operatorCode, idDepartment);
+                                    })
+                                    .then(function (data) {
+                                        hideLoader();
+                                    })
+                                    .catch(function (error) {
+                                        console.error("Error:", error);
+                                        hideLoader();
+                                    });
+                            }
+                            else {
+                                //SHOW NEXT LEVEL
+                                window.location.href = "/TimeBound/Orders?operatorCode=" + operatorCode
+                                    + "&IdPhaseState=" + encodeURIComponent(IdPhaseState.toString())
+                                    + "&IdDepartment=" + encodeURIComponent(idDepartment.toString())
+                                    + "&IdPhaseActivity=" + encodeURIComponent(idPhaseActivity.toString())
+                                    + "&PhaseCode=" + encodeURIComponent(phaseCode.toString());
+                            }
+                        });
+                    });
+                $(itemElement).append(tileContent);
+            }
+        });
+
+        function handlePhaseClick(itemData, opCode, idPhase, idPhaseState, idPhaseActivity) {
+            return $.ajax({
+                url: "/TimeBound/AddNotProductiveDeclarations",
+                method: "POST",
+                async: false,
+                data: {
+                    operatorCode: opCode,
+                    idPhaseActivity: idPhaseActivity,
+                    IdPhase: idPhase,
+                    IdPhaseState: idPhaseState,
+                    // IdProcessList: itemData.idProcessList
+                },
+                success: function (data) {
+                    window.location.reload();
+                    console.log("Tile color saved successfully!");
+                }
+            })
+        }
+
+        function UpdateOperatorState(IdPhaseState, Operatorcode, idDepartment) {
+            var tileContent = $(".tile-item");
+            return $.ajax({
+                url: "/TimeBound/UpdateOperatorsState",
+                method: "POST",
+                async: false,
+                data: {
+                    operatorCode: Operatorcode,
+                    IdPhaseState: IdPhaseState,
+                },
+                complete: function () {
+                    window.location.href = "/TimeBound/Operator?idDepartment=" + encodeURIComponent(idDepartment.toString());
+                    //  hideLoader();
+                }
+            });
+        }
+
+        function getPhaseId(phaseCode) {
+            return $.ajax({
+                url: "/Phases/GetIdPhaseFromCode",
+                method: "POST",
+                async: false,
+                data: {
+                    Code: phaseCode
+                }
+            }).responseText;
+        }
+    </script>
+
+}
+
+
+
+
+
+
+
+

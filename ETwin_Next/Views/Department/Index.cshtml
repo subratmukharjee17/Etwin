@@ -1,0 +1,97 @@
+﻿    <!-- Logout Modal-->
+@using DevExtreme.AspNet.Mvc;
+
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            @* <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+            </button>
+            </div>*@
+            <div class="modal-body">Do you want to Logout?</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-primary" href="~/Operators/Loginview">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="txthidden" value="@ViewBag.Active" />
+<div id="headerTitle"></div>
+<div class="theme"></div>
+<div class="demo-container">
+    <div class="table-wrapper">
+
+        <div id="gridContainer"></div>
+        <div id="action-add"></div>
+        <div id="action-remove"></div>
+        <div id="action-edit"></div>
+    </div>
+</div>
+
+<div id="chart-demo">
+
+    <div id="chartContainer"></div>
+    <div id="rangeSelector"></div>
+</div>
+<div class="scheduler-demo">
+    <div id="schedulerContainer"></div>
+</div>
+
+<style>
+    .demo-container .table-wrapper, .chart-demo, .scheduler-demo {
+        width: 98%;
+        overflow-x: auto;
+        display: inline-block;
+        border-radius: 10px;
+        margin-left: 10px;
+        height: 8%;
+    }
+
+    #gridContainer .dx-row {
+        height: 36px;
+    }
+
+
+
+    @@media(min-width:450px) {
+        #gridContainer, #chartContainer, #rangeSelector {
+            padding: 20px;
+            border-radius: 20px;
+            margin-right: 15px;
+        }
+
+        #gridContainer {
+            margin-top: -15px;
+        }
+
+        #chartContainer{
+            margin-top:-30px;
+        }
+    }
+
+    @@media(max-width:450px) {
+        #gridContainer, #chartContainer, #rangeSelector {
+            padding: 20px;
+            border-radius: 20px;
+            margin-right: 20px;
+            margin-left: 20px;
+        }
+
+        #chartContainer, #gridContainer {
+            margin-top: 10px;
+        }
+    }
+
+    #rangeSelector {
+        padding: 10px;
+    }
+
+    #chartContainer, #rangeSelector {
+        display: none;
+    }
+
+</style>

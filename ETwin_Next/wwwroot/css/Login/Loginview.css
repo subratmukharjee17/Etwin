@@ -1,0 +1,188 @@
+﻿* {
+    font-family: Roboto;
+}
+
+.login_div {
+    margin: 0px;
+    min-width: 300px;
+    max-width: 300px;
+    text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0);
+    border-radius: 20px;
+    float: left;
+    transform: translateX(40%);
+}
+
+main {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+@media (max-width: 1200px) {
+    .login_div {
+        min-width: 300px;
+        max-width: 300px;
+        float: none; /* Rimuovi il float */
+        margin: 0 auto; /* Imposta i margini a auto per centrare il div */
+        transform: translateX(0%);
+        background: rgba(255, 255, 255, 75%);
+    }
+}
+
+@media (max-height: 650px) {
+    .login_div {
+        transform: translateY(0%);
+        padding: 10px;
+    }
+
+    .login_btn {
+        margin: 30px 20px 20px 20px;
+    }
+
+    .logo_div a img {
+        width: 75%;
+        height: 100%;
+    }
+}
+
+.logo_div {
+    margin-bottom: 40px;
+}
+
+@media (max-width: 1550px) {
+    .login_div {
+        background: rgba(255, 255, 255, 75%);
+    }
+}
+
+@media (min-height: 650px) {
+    .logo_div a img {
+        width: 100%;
+        height: 100%;
+    }
+
+
+
+    .login_btn {
+        margin: 50px 20px 20px 20px;
+    }
+}
+
+.login_btn {
+    min-width: 200px;
+    border-radius: 100px;
+    background: linear-gradient(-90deg, rgba(255, 139, 75, 1) 0%, rgba(255, 52, 50, 1) 100%);
+    color: #fff;
+    text-transform: capitalize;
+    border: none;
+    padding: 10px 10px;
+    font-size: 18px;
+}
+
+.form-control {
+    text-align: center;
+    background: #eee;
+    color: #191919;
+    border: none;
+    font-size: 18px;
+    border-radius: 100px;
+    padding: 10px 10px;
+    text-align: left;
+    text-indent: 45px;
+}
+
+    .form-control::before,
+    .form-control:active,
+    .form-control::after,
+    .form-control:focus {
+        font-size: 18px !important;
+        background: #eee !important;
+        color: #191919 !important;
+    }
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: -10px;
+}
+
+    .form-group i {
+        position: absolute;
+        display: flex;
+        margin-left: 14px;
+        font-size: 18px;
+    }
+
+#toggle_pwd {
+    left: 78%;
+    color: gray;
+    font-size: 15px;
+}
+
+.remember_container, .forgotpw_container {
+    flex: 0 0 45%;
+    max-width: 50%;
+    margin-left: 10px;
+}
+
+a.forgot_pwd {
+    color: #191919;
+    text-decoration: none;
+    font-size: 13px;
+    align-items: center;
+    display: flex;
+    margin-top: -2px;
+    float: right;
+}
+
+#remember_me {
+    margin-right: 5px;
+    float: left;
+}
+
+.rme_class {
+    margin-top: -4px;
+    font-size: 13px;
+    display: flex;
+}
+
+.row {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: calc(-0.5 * var(--bs-gutter-x));
+    margin-right: calc(-0.5 * var(--bs-gutter-x));
+}
+
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999; /* Ensure it's above other content */
+}
+
+.loading-popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+}
+
+#error_notif {
+    display: none;
+    margin-top: 20px
+}
+
+.circle-image {
+    border-radius: 50%;
+    overflow: hidden;
+    display: inline-block;
+}

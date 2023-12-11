@@ -1,0 +1,1166 @@
+﻿@using DevExtreme.AspNet.Mvc
+@using Etwin.DAL.Models
+@using System.Web;
+@model TimeBoundViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Styles {
+
+    <style>
+        #tileViewContainer {
+            overflow: auto;
+            width: 98%;
+            background: #eee;
+        }
+
+        #tileView {
+            height: 91vh !important;
+        }
+
+        .dx-item {
+            transition: all 0.3s;
+        }
+
+            .dx-item:hover {
+                transform: scale(1.05) !important;
+            }
+
+        .dx-scrollable-wrapper {
+            position: relative;
+            width: 100%;
+            height: auto;
+        }
+
+        .page-margin-default {
+            margin: 0px 0px 0px 15px;
+        }
+
+        .dx-tile {
+            color: #333;
+            background-color: #fff;
+            border: 1px solid rgba(221,221,221,.6);
+            text-align: left;
+            float: left;
+            height: 170px !important;
+            width: 275px !important;
+            margin: 10px !important;
+        }
+
+        #titleName {
+            font-size: 16px;
+        }
+
+        #ambitoTile {
+            display: inline;
+        }
+
+        .contextButtonContainer {
+            display: block;
+            width: 100%;
+            height: 20%;
+        }
+
+
+
+        .tileNames {
+            color: white;
+        }
+
+        .tilesCircle {
+            float: left;
+        }
+
+        .ContainerCircleText {
+            width: 100%;
+            height: 75%;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .ProcessOrder {
+            width: 100%;
+            height: 5%;
+            display: flex;
+            justify-content: end;
+            font-size: 10px;
+            margin-right: 10px;
+            color: #fff;
+        }
+
+        .contextButton {
+            margin: 2px;
+            width: 30%;
+            height: 100%;
+            padding: 2px;
+            border: 1px solid white;
+            font-size: 10px;
+            background-color: transparent;
+            color: white;
+            transition: 0.5s;
+        }
+
+            .contextButton:hover {
+                background: #FF330D;
+            }
+
+        .activityMenuDropDown {
+            margin-right: 12px;
+            padding: 2px;
+            display: none;
+            position: absolute;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+            .activityMenuDropDown button {
+                display: block;
+                width: 100%;
+                height: 30px;
+                padding: 2px;
+                border: none;
+                font-size: 10px;
+                background-color: darkgray;
+                color: black;
+            }
+
+                .activityMenuDropDown button:hover {
+                    font-weight: bold;
+                    background-color: #FF330D;
+                    color: white;
+                }
+
+
+        .dx-tileview-wrapper {
+            display: contents;
+        }
+
+    </style>
+}
+
+
+<div id="tileViewContainer" class="tileViewContainer ">
+    <div id="tileView" class="page-margin-default"></div>
+</div>
+
+@section Scripts {
+
+
+    <script>
+        function getColoreStatoOperatore(opCode, operatorState) {
+            if (operatorState === "Stopped") {
+                return "steelblue";
+            }
+            else if (operatorState === "Unavailable") {
+                return "darkgray";
+            }
+            else {
+                return $.ajax({
+                    url: "/TimeBound/GetOperatorState",
+                    method: "POST",
+                    async: false,
+                    data: {
+                        operatorCode: opCode,
+                    },
+                    success: function (data) {
+                        console.log("Tile color saved successfully!");
+                    },
+                    error: function (error) {
+
+                        console.error("Failed to save tile color:", error);
+                    }
+                });
+            }
+        }
+
+
+        function getRandomIndex(maxIndex) {
+            return Math.floor(Math.random() * maxIndex);
+        }
+
+        // Function to get a random color from the array
+        function getRandomColor() {
+            var colors = ["black"];
+            var randomIndex = getRandomIndex(colors.length);
+            return colors[randomIndex];
+        }
+
+
+        function handleTileClick(itemData, IdPhaseActivity, IdPhaseState, IdProcessList) {
+            return $.ajax({
+                url: "/TimeBound/AddDeclarations",
+                method: "POST",
+                async: false,
+                data: {
+                    operatorCode: itemData.titoloTimbratore,
+                    idPhaseActivity: IdPhaseActivity,
+                    IdPhaseState: IdPhaseState,
+                    IdProcessList: IdProcessList
+                },
+                success: function (data) {
+                    window.location.reload();
+                    console.log("Tile color saved successfully!");
+                }
+            })
+        }
+
+        function handleButtonClick(itemData, IdPhaseState, Operatorcode, IdPresenceState) {
+
+            var tileContent = $(".tile-item");
+            return $.ajax({
+                url: "/TimeBound/UpdateOperatorsState",
+                method: "POST",
+                async: false,
+                data: {
+                    operatorCode: itemData.titoloTimbratore,
+                    IdPhaseState: IdPhaseState,
+                    Operatorcode: Operatorcode,
+                    IdPresenceState: IdPresenceState
+                },
+                success: function (data) {
+                    window.location.reload();
+                    console.log("Tile color saved successfully!");
+                    //  GetOperatorState(itemData, tileContent);
+                },
+                error: function (error) {
+
+                    console.error("Failed to save tile color:", error);
+                },
+                complete: function () {
+
+                }
+            });
+            // reload();
+            // Add any other tile click handling code here (if needed)
+        }
+
+        function GetOperatorState(itemData, tileId) {
+            // Trim any leading or trailing whitespace from the tileId
+            tileId = $.trim(tileId);
+            //var tileElement = $("#" + tileId)[0];
+            var tileElement = document.getElementById(tileId);
+            return $.ajax({
+                url: "/TimeBound/GetOperatorState",
+                method: "GET",
+                async: false,
+                data: {
+                    operatorCode: itemData.titoloTimbratore
+                },
+                success: function (data) {
+
+                    tileElement.style.backgroundColor = "";
+                    tileElement.style.backgroundColor = data;
+
+                },
+                error: function (error) {
+
+                    console.error("Failed to fetch tile color:", error);
+                }
+            });
+        }
+
+        function GetOperatorStateByColour(colour) {
+            var operatorStates;
+            /*Attention to the spaces in the case part:
+            If there are no spaces between one value and another,
+            equality will not occur*/
+            switch (colour) {
+                /*steelblue*/
+                case "rgb(70, 130, 180)": operatorStates = 1; break;
+                /*darkgray*/
+                case "rgb(169, 169, 169)": operatorStates = 3; break;
+                /*Default
+                * operatorStates = 2 is consider as "operator is working"
+                */
+                default: operatorStates = 2; break;
+            }
+            return operatorStates
+        }
+
+        function GetPhaseActivityByColour(colour) {
+            var phaseActivity;
+            /*Attention to the spaces in the case part:
+            If there are no spaces between one value and another,
+            equality will not occur*/
+            switch (colour) {
+                /*limegreen */
+                case "rgb(50, 205, 50)": phaseActivity = 1; break;
+                /*orange*/
+                case "rgb(255, 165, 0)": phaseActivity = 2; break;
+                /*darkgreen*/
+                case "rgb(0, 100, 0)": phaseActivity = 3; break;
+                /*purple*/
+                case "rgb(128, 0, 128)": phaseActivity = 4; break;
+                /*Default*/
+                default: phaseActivity = 0; break;
+            }
+            return phaseActivity
+        }
+
+
+        function UpdateOperatorState(itemData, IdPhaseState, Operatorcode) {
+            var tileContent = $(".tile-item");
+            return $.ajax({
+                url: "/TimeBound/UpdateOperatorsState",
+                method: "POST",
+                async: false,
+                data: {
+                    operatorCode: itemData.titoloTimbratore,
+                    IdPhaseState: IdPhaseState,
+                    Operatorcode: Operatorcode
+                },
+                success: function (data) {
+                    console.log("Tile color saved successfully!");
+                    //  GetOperatorState(itemData, tileContent);
+                },
+                error: function (error) {
+                    console.error("Failed to save tile color:", error);
+                },
+                complete: function () {
+                    window.location.href = "/TimeBound/Operator";
+                    //  hideLoader();
+                }
+            });
+        }
+
+        function UpdateDeclarations(itemData, IdPhaseState) {
+            return $.ajax({
+                url: "/TimeBound/UpdateDeclarations",
+                method: "POST",
+                async: false,
+                data: {
+                    operatorCode: itemData.titoloTimbratore
+                },
+                success: function (data) {
+                    // The 'data' variable should contain the fetched color value
+                    // Update the tile's background color with the fetched color
+                    tileContent.css("background-color", data);
+                    handleButtonClick(itemData, 1);
+                },
+                error: function (error) {
+                    console.error("Failed to save tile color:", error);
+                },
+                complete: function () {
+                    tileContent.css("background-color", data);
+                    // Now that handleButtonClick is completed (success or error), call GetOperatorState
+                    //  GetOperatorState(itemData);
+                }
+            });
+        }
+
+
+        var lstTimbratore = @Html.Raw(Json.Serialize(Model.LstTimbratore));
+        var clickedTileText;
+
+        // Define variables for click tracking
+        var clickCount = 0;
+        var clickTimer;
+        var doubleClickThreshold = 4000; // 1 seconds is 1000 milliseconds
+        //DevExpress Tile View
+        $("#tileView").dxTileView({
+            dataSource: lstTimbratore,
+            direction: "horizontal",
+            baseItemHeigh: 170,
+            baseItemWidth: 250,
+
+            itemTemplate: function (itemData, itemIndex, itemElement) {
+                var tileId = "tile-" + itemData.immagine;
+                var text = itemData.titoloTimbratore;
+
+
+                // Create a temporary element to parse the HTML content
+                var tempElement = document.createElement("div");
+                tempElement.innerHTML = text;
+
+                // Find the element with the id "titleName" within the temporary element
+                var titleNameElement = tempElement.querySelector("#titleName").textContent;
+                var initials = "";
+
+                if (titleNameElement) {
+                    var words = titleNameElement.split(" ");
+                    words.forEach(function (word) {
+                        if (word) {
+                            initials += word[0];
+                        }
+                    });
+                }
+
+                var controlColourID = itemData.controlState;
+
+
+                //itemData.titoloTimbratore IS THE NAME, OPERATOR CODE,OPERATOR ROLE AND DEPARTMENT OF THE OPERATOR THAT IS CLICKED
+                var s = itemData.titoloTimbratore;
+
+                //GET OPERATOR CODE
+                var opCode = itemData.operatorCode;
+
+                var color = null;
+                var colorChecked = null;
+                if (opCode != null) {
+                    color = getColoreStatoOperatore(opCode, controlColourID);
+
+                    if (controlColourID === "Processing") {
+                        colorChecked = color.responseJSON;
+                    }
+                    else {
+                        colorChecked = color;
+                    }
+
+                } else {
+                    colorChecked = "black"
+                }
+
+                var randomColor = getRandomColor();
+
+                var IsDropDownOpen = false;
+
+                ;                // Seleziona il div all'interno del dxTileView
+                var tileDiv = $("#tileView .dx-item.dx-tile ");
+                tileDiv.attr("id", "TileId");
+
+                var scrollDiv = $(".dx-scrollable-wrapper");
+                scrollDiv.attr("id", "scrollTileContainer");
+
+                var tileContent = $("<div>")
+                    .attr("id", tileId) // Set the unique ID for the tile
+                    .attr("data-valore", controlColourID)
+                    .addClass("tile-item") // Add the 'tile-item' class to each tile
+                    .css({
+                        "background-color": colorChecked,
+                        "height": "100%",
+                        "width": "100%",
+                        "padding": "7px",
+                        "border-radius": "5px",
+                        "display": "flex",
+                        "flex-direction": "column",
+                        "align-items": "center"
+                    })
+                    .append(
+                        $("<div>")
+                            .addClass("ProcessOrder")
+                            .append(
+                                $("<div>")
+                                    .addClass("textProcessOrder")
+                                    .append(
+                                        $("<div>")
+                                            .innerHTML = itemData.testoScorrevole,
+                                    )
+                            )
+                    )
+                    .append(
+                        $("<div>")
+                            .addClass("ContainerCircleText")
+                            .append(
+                                /*Tile Items' Circle*/
+                                $("<div>")
+                                    .addClass("tileCircle")
+                                    .css({
+                                        "font-size": "20px",
+                                        "font-weight": "bold",
+                                        "margin-right": "10px",
+                                        "background-color": randomColor,
+                                        "color": "#fff",
+                                        "height": "80px",
+                                        "width": "80px",
+                                        "border-radius": "50%",
+                                        "display": "flex",
+                                        "align-items": "center",
+                                        "justify-content": "center"
+                                    })
+                                    .text(initials),
+
+                                /*Tile Items' names*/
+                                $("<div>")
+                                    .addClass("tileNames")
+                                    .css({
+                                        "display": "flex",
+                                        "flex-direction": "column"
+                                    })
+                                    .append(
+                                        $("<div>")
+                                            .css({
+                                                "font-size": "12px",
+                                                "font-weight": "bold"
+                                            })
+                                            .html(text)
+                                    )
+
+                            )
+                    )
+                    .append(
+                        $("<div>")
+                            .addClass("contextButtonContainer")
+                            .append(
+                                $("<button>")
+                                    .text("Presenza")
+                                    .addClass("contextButton")
+                                    .on("click", function (e) {
+                                        // Find the parent tile element (the div with class "tile-item")
+                                        var parentTile = $(this).closest(".tile-item");
+                                        // Retrieve the ID of the tile
+                                        var tileId = parentTile.attr("id");
+
+                                        var ProcessOrder = tileContent[0].querySelector(".ProcessOrder");
+
+                                        if (tileContent.css("background-color") === "darkgray" || tileContent.css("background-color") === "rgb(169, 169, 169)") {
+                                            showLoader();
+                                            e.stopPropagation(); // Prevent the click event from propagating to the parent tile
+
+
+                                            var containerButtonTile = tileContent[0].querySelector(".contextButtonContainer");
+
+                                            var buttonActivity = containerButtonTile.querySelector('#phaseActivity');
+                                            var buttonDrawing = containerButtonTile.querySelector('#Drawing');
+                                            //Prendo il bottone delle attività e lo metto invisibile
+                                            buttonActivity.style.display = "inline";
+                                            buttonDrawing.style.display = "inline";
+                                            ProcessOrder.style.display = "none";
+
+                                            handleButtonClick(itemData, null, 0, 1)
+                                                .then(function (data) {
+                                                    // Optionally, you can add further handling here if needed
+                                                    return GetOperatorState(itemData, tileId);
+                                                })
+                                                .then(function (data) {
+                                                    window.location.reload();
+                                                    hideLoader(); // Hide the loader when both AJAX calls are complete
+                                                })
+                                                .catch(function (error) {
+                                                    console.error("Error:", error);
+                                                    hideLoader(); // Ensure the loader is hidden in case of errors
+                                                });
+                                        }
+                                        else if (tileContent.css("background-color") === "limegreen" || tileContent.css("background-color") === "rgb(50, 205, 50)") {
+                                            showLoader();
+                                            ProcessOrder.style.display = "none";
+                                            e.stopPropagation();
+                                            // ProcessOrder.style.display = "none";
+                                            handleTileClick(itemData, 2, 2)
+                                                .then(function (data) {
+                                                    // Handle the result of the first AJAX call if needed
+                                                    return handleButtonClick(itemData, 4, 0, 2);
+                                                })
+                                                .then(function (data) {
+                                                    // Handle the result of the second AJAX call if needed
+                                                    return GetOperatorState(itemData, tileId);
+                                                })
+                                                .then(function (data) {
+                                                    hideLoader(); // Hide the loader when all AJAX calls are complete
+                                                })
+                                                .catch(function (error) {
+                                                    console.error("Error:", error);
+                                                    hideLoader(); // Ensure the loader is hidden in case of errors
+                                                });
+                                        }
+                                        else {
+                                            showLoader();
+                                            e.stopPropagation();
+                                            ProcessOrder.style.display = "none";
+                                            var containerButtonTile = tileContent[0].querySelector(".contextButtonContainer");
+                                            var buttonActivity = containerButtonTile.querySelector('#phaseActivity');
+                                            var buttonDrawing = containerButtonTile.querySelector('#Drawing');
+                                            //Prendo il bottone delle attività e lo metto invisibile
+                                            buttonActivity.style.display = "none";
+                                            buttonDrawing.style.display = "none";
+
+                                            handleButtonClick(itemData, null, 0, 2)
+                                                .then(function (data) {
+                                                    // Optionally, you can add further handling here if needed
+                                                    return GetOperatorState(itemData, tileId);
+                                                })
+                                                .then(function (data) {
+                                                    hideLoader(); // Hide the loader when both AJAX calls are complete
+                                                })
+                                                .catch(function (error) {
+                                                    console.error("Error:", error);
+                                                    hideLoader(); // Ensure the loader is hidden in case of errors
+                                                });
+                                        }
+                                    })
+                            )
+                            .append(
+                                /*Dropdown Attività*/
+                                $("<button>")
+                                    .text("Attività di fase")
+                                    .addClass("contextButton")
+                                    .attr("id", "phaseActivity")
+                                    .append(
+                                        $("<div>")
+                                            .addClass("activityMenuDropDown")
+                                            .append(
+                                                $("<button>")
+                                                    .text("Lavorazione")
+                                                    .on("click", function (e) {
+                                                        showLoader();
+
+                                                        //GET COLOR TO EVALUATE OPERATOR STATES OR PHASE ACTIVITY
+                                                        var colour = tileContent.css("background-color");
+
+                                                        //GET TILE ID TO SAVE THE ITEM
+                                                        var tileId = $(this).attr("id");
+
+                                                        //COUNT CLICK TO EVALUATE IF THE PHASE IS STOPPED OR FINISHED
+                                                        clickCount++;
+
+                                                        //GET OPERATOR STATE
+                                                        var OperatorStates = GetOperatorStateByColour(colour);
+
+                                                        //SET PHASE ACTIVITY AS 0
+                                                        var IdPhaseActivity = 0;
+
+                                                        //SET PHASE STATE AS 0
+                                                        var IdPhaseState = 0;
+
+                                                        //ORDER AND PHASE DETAIL WHEN OPERATOR IS AT WORK
+                                                        var ProcessOrder = tileContent[0].querySelector(".ProcessOrder");
+
+                                                        //GET URL
+                                                        var url = window.location.href;
+                                                        //SET URL OBJECT
+                                                        var urlObject = new URL(url);
+                                                        //GET URL PARAMETER
+                                                        var idDepartment = urlObject.searchParams.get('idDepartment');
+
+                                                        //OPERATOR STATES MUST NOT BE NULL
+                                                        if (OperatorStates !== 0) {
+
+                                                            //OPERATOR IS STOPPED (BLUE)
+                                                            if (OperatorStates === 1) {
+
+                                                                //PHASE ACTIVITY WILL BE PROCESSING
+                                                                IdPhaseActivity = 1
+                                                                //PHASE STATE WILL BE WORKING
+                                                                IdPhaseState = 1;
+                                                                //ORDER AND PHASE DETAIL ARE HIDE
+                                                                ProcessOrder.style.display = "none";
+
+                                                                //itemData.titoloTimbratore IS THE NAME, OPERATOR CODE,OPERATOR ROLE AND DEPARTMENT OF THE OPERATOR THAT IS CLICKED
+                                                                var s = itemData.titoloTimbratore;
+
+                                                                //MANAGE STRING "s" TO GET ONLY THE OPERATOR CODE TO SET AS PARAMETER
+                                                                var extractedValue = null;
+                                                                var match = s.match(/\d+\.\d+\.\d+/);
+                                                                if (match) {
+                                                                    extractedValue = match[0];
+                                                                } else {
+                                                                    console.log("Value not found");
+                                                                }
+
+                                                                //THE PARAMETER THAT HAS TO BE SET IN THE URL, MUST BE ENCODE TO SET THEM SAFELY
+                                                                var operatorCode = encodeURIComponent(extractedValue);
+                                                                //NEXT VIEW CALLED IN TIMEBOUND CONTROLLER WITH THE PARAMETERS
+                                                                window.location.href = "/TimeBound/WorkPhase?operatorCode=" + operatorCode
+                                                                    + "&PhaseState=" + encodeURIComponent(IdPhaseState.toString())
+                                                                    + "&IdDepartment=" + encodeURIComponent(idDepartment.toString())
+                                                                    + "&IdPhaseActivity=" + encodeURIComponent(IdPhaseActivity.toString());
+
+                                                            }
+
+                                                            //OPERATOR IS PROCESSING (COLOR BASED ON PHASE ACTIVITY)
+                                                            else if (OperatorStates === 2) {
+                                                                // Delay showing the loader for a short period (e.g., 300 milliseconds) to detect double-click
+                                                                setTimeout(function () {
+                                                                    if (clickCount === 1) {
+                                                                        // PHASE STATE = STOPPED
+                                                                        IdPhaseState = 2;
+
+                                                                        //PHASE ACTIVITY BY COLOUR
+                                                                        var IdPhaseActivity = GetPhaseActivityByColour(colour);
+
+                                                                        //FUNCTION TO ADD DECLARATION
+                                                                        handleTileClick(itemData, IdPhaseActivity, IdPhaseState, itemData.testoScorrevole)
+                                                                            .then(function (data) {
+                                                                                //UPDATE OPERATOR STATE
+                                                                                return handleButtonClick(itemData, 1);
+                                                                            })
+                                                                            .then(function (data) {
+                                                                                //UPDATE TILE
+                                                                                return GetOperatorState(itemData, tileId);
+                                                                            })
+                                                                            .catch(function (error) {
+                                                                                console.error("Error:", error);
+                                                                            });
+                                                                    }
+                                                                    else if (clickCount === 2) {
+                                                                        // PHASE STATE = FINISHED
+                                                                        IdPhaseState = 3;
+                                                                        //PHASE ACTIVITY BY COLOUR
+                                                                        var IdPhaseActivity = GetPhaseActivityByColour(colour);
+                                                                        //FUNCTION TO ADD DECLARATION
+                                                                        handleTileClick(itemData, IdPhaseActivity, IdPhaseState, itemData.testoScorrevole)
+                                                                            .then(function (data) {
+                                                                                //UPDATE OPERATOR STATE
+                                                                                return handleButtonClick(itemData, 1);
+                                                                            })
+                                                                            .then(function (data) {
+                                                                                //UPDATE TILE
+                                                                                return GetOperatorState(itemData, tileId);
+                                                                            })
+                                                                            .catch(function (error) {
+                                                                                console.error("Error:", error);
+                                                                            });
+                                                                        clearTimeout(clickTimer);
+                                                                        clickCount = 0;
+                                                                    }
+                                                                }, 1500); // Adjust the delay time as needed
+                                                            }
+
+                                                            //OPERATOR IS UNAVAILABLE
+                                                            else if (OperatorStates === 3) {
+                                                                //OperatorStates = Unavailable
+
+                                                            }
+
+                                                        }
+                                                        hideLoader();
+                                                    })
+
+                                            )
+                                            .append(
+                                                $("<button>")
+                                                    .text("Attrezzaggio")
+                                                    .on("click", function (e) {
+                                                        showLoader();
+
+                                                        //GET COLOR TO EVALUATE OPERATOR STATES OR PHASE ACTIVITY
+                                                        var colour = tileContent.css("background-color");
+
+                                                        //GET TILE ID TO SAVE THE ITEM
+                                                        var tileId = $(this).attr("id");
+
+                                                        //GET OPERATOR STATE
+                                                        var OperatorStates = GetOperatorStateByColour(colour);
+
+                                                        //SET PHASE ACTIVITY AS 0
+                                                        var IdPhaseActivity = 0;
+
+                                                        //SET PHASE STATE AS 0
+                                                        var IdPhaseState = 0;
+
+                                                        //ORDER AND PHASE DETAIL WHEN OPERATOR IS AT WORK
+                                                        var ProcessOrder = tileContent[0].querySelector(".ProcessOrder");
+
+                                                        //GET URL
+                                                        var url = window.location.href;
+                                                        //SET URL OBJECT
+                                                        var urlObject = new URL(url);
+                                                        //GET URL PARAMETER
+                                                        var idDepartment = urlObject.searchParams.get('idDepartment');
+                                                        //OPERATOR STATES MUST NOT BE NULL
+                                                        if (OperatorStates != 0) {
+                                                            if (OperatorStates === 1) {
+
+                                                                //PHASE ACTIVITY WILL BE EQUIPMENT
+                                                                IdPhaseActivity = 2
+                                                                //PHASE STATE WILL BE WORKING
+                                                                IdPhaseState = 1;
+                                                                //ORDER AND PHASE DETAIL ARE HIDE
+                                                                ProcessOrder.style.display = "none";
+
+                                                                //itemData.titoloTimbratore IS THE NAME, OPERATOR CODE,OPERATOR ROLE AND DEPARTMENT OF THE OPERATOR THAT IS CLICKED
+                                                                var s = itemData.titoloTimbratore;
+
+                                                                //MANAGE STRING "s" TO GET ONLY THE OPERATOR CODE TO SET AS PARAMETER
+                                                                var extractedValue = null;
+                                                                var match = s.match(/\d+\.\d+\.\d+/);
+                                                                if (match) {
+                                                                    extractedValue = match[0];
+                                                                } else {
+                                                                    console.log("Value not found");
+                                                                }
+
+                                                                //THE PARAMETER THAT HAS TO BE SET IN THE URL, MUST BE ENCODE TO SET THEM SAFELY
+                                                                var operatorCode = encodeURIComponent(extractedValue);
+                                                                //NEXT VIEW CALLED IN TIMEBOUND CONTROLLER WITH THE PARAMETERS
+                                                                window.location.href = "/TimeBound/WorkPhase?operatorCode=" + operatorCode
+                                                                    + "&PhaseState=" + encodeURIComponent(IdPhaseState.toString())
+                                                                    + "&IdDepartment=" + encodeURIComponent(idDepartment.toString())
+                                                                    + "&IdPhaseActivity=" + encodeURIComponent(IdPhaseActivity.toString());
+                                                            }
+                                                            else if (OperatorStates === 2) {
+                                                                // PHASE STATE = STOPPED
+                                                                IdPhaseState = 2;
+
+                                                                //PHASE ACTIVITY BY COLOUR
+                                                                var IdPhaseActivity = GetPhaseActivityByColour(colour);
+
+                                                                //FUNCTION TO ADD DECLARATION
+                                                                handleTileClick(itemData, IdPhaseActivity, IdPhaseState, itemData.testoScorrevole)
+                                                                    .then(function (data) {
+                                                                        //UPDATE OPERATOR STATE
+                                                                        return handleButtonClick(itemData, 1);
+                                                                    })
+                                                                    .then(function (data) {
+                                                                        //UPDATE TILE
+                                                                        return GetOperatorState(itemData, tileId);
+                                                                    })
+                                                                    .catch(function (error) {
+                                                                        console.error("Error:", error);
+                                                                    });
+                                                            }
+                                                            hideLoader();
+                                                        }
+                                                    })
+
+                                            )
+                                            .append(
+                                                $("<button>")
+                                                    .text("Preparazione")
+                                                    .on("click", function (e) {
+                                                        showLoader();
+
+                                                        //GET COLOR TO EVALUATE OPERATOR STATES OR PHASE ACTIVITY
+                                                        var colour = tileContent.css("background-color");
+
+                                                        //GET TILE ID TO SAVE THE ITEM
+                                                        var tileId = $(this).attr("id");
+
+                                                        //GET OPERATOR STATE
+                                                        var OperatorStates = GetOperatorStateByColour(colour);
+
+                                                        //SET PHASE ACTIVITY AS 0
+                                                        var IdPhaseActivity = 0;
+
+                                                        //SET PHASE STATE AS 0
+                                                        var IdPhaseState = 0;
+
+                                                        //ORDER AND PHASE DETAIL WHEN OPERATOR IS AT WORK
+                                                        var ProcessOrder = tileContent[0].querySelector(".ProcessOrder");
+
+                                                        //GET URL
+                                                        var url = window.location.href;
+                                                        //SET URL OBJECT
+                                                        var urlObject = new URL(url);
+                                                        //GET URL PARAMETER
+                                                        var idDepartment = urlObject.searchParams.get('idDepartment');
+                                                        
+                                                        //OPERATOR STATES MUST NOT BE NULL
+                                                        if (OperatorStates != 0) {
+                                                            if (OperatorStates === 1) {
+
+                                                                //PHASE ACTIVITY WILL BE PREPARATION
+                                                                IdPhaseActivity = 3
+                                                                //PHASE STATE WILL BE WORKING
+                                                                IdPhaseState = 1;
+                                                                //ORDER AND PHASE DETAIL ARE HIDE
+                                                                ProcessOrder.style.display = "none";
+
+                                                                //itemData.titoloTimbratore IS THE NAME, OPERATOR CODE,OPERATOR ROLE AND DEPARTMENT OF THE OPERATOR THAT IS CLICKED
+                                                                var s = itemData.titoloTimbratore;
+
+                                                                //MANAGE STRING "s" TO GET ONLY THE OPERATOR CODE TO SET AS PARAMETER
+                                                                var extractedValue = null;
+                                                                var match = s.match(/\d+\.\d+\.\d+/);
+                                                                if (match) {
+                                                                    extractedValue = match[0];
+                                                                } else {
+                                                                    console.log("Value not found");
+                                                                }
+
+                                                                //THE PARAMETER THAT HAS TO BE SET IN THE URL, MUST BE ENCODE TO SET THEM SAFELY
+                                                                var operatorCode = encodeURIComponent(extractedValue);
+                                                                //NEXT VIEW CALLED IN TIMEBOUND CONTROLLER WITH THE PARAMETERS
+                                                                window.location.href = "/TimeBound/WorkPhase?operatorCode=" + operatorCode
+                                                                    + "&PhaseState=" + encodeURIComponent(IdPhaseState.toString())
+                                                                    + "&IdDepartment=" + encodeURIComponent(idDepartment.toString())
+                                                                    + "&IdPhaseActivity=" + encodeURIComponent(IdPhaseActivity.toString());
+                                                            }
+                                                            else if (OperatorStates === 2) {
+                                                                // PHASE STATE = STOPPED
+                                                                IdPhaseState = 2;
+
+                                                                //PHASE ACTIVITY BY COLOUR
+                                                                var IdPhaseActivity = GetPhaseActivityByColour(colour);
+
+                                                                //FUNCTION TO ADD DECLARATION
+                                                                handleTileClick(itemData, IdPhaseActivity, IdPhaseState, itemData.testoScorrevole)
+                                                                    .then(function (data) {
+                                                                        //UPDATE OPERATOR STATE
+                                                                        return handleButtonClick(itemData, 1);
+                                                                    })
+                                                                    .then(function (data) {
+                                                                        //UPDATE TILE
+                                                                        return GetOperatorState(itemData, tileId);
+                                                                    })
+                                                                    .catch(function (error) {
+                                                                        console.error("Error:", error);
+                                                                    });
+                                                            }
+                                                            hideLoader();
+                                                        }
+                                                    })
+
+                                            )
+                                            .append(
+                                                $("<button>")
+                                                    .text("Movimentazione")
+                                                    .on("click", function (e) {
+                                                        showLoader();
+
+                                                        //GET COLOR TO EVALUATE OPERATOR STATES OR PHASE ACTIVITY
+                                                        var colour = tileContent.css("background-color");
+
+                                                        //GET TILE ID TO SAVE THE ITEM
+                                                        var tileId = $(this).attr("id");
+
+                                                        //GET OPERATOR STATE
+                                                        var OperatorStates = GetOperatorStateByColour(colour);
+
+                                                        //SET PHASE ACTIVITY AS 0
+                                                        var IdPhaseActivity = 0;
+
+                                                        //SET PHASE STATE AS 0
+                                                        var IdPhaseState = 0;
+
+                                                        //ORDER AND PHASE DETAIL WHEN OPERATOR IS AT WORK
+                                                        var ProcessOrder = tileContent[0].querySelector(".ProcessOrder");
+
+                                                        //GET URL
+                                                        var url = window.location.href;
+                                                        //SET URL OBJECT
+                                                        var urlObject = new URL(url);
+                                                        //GET URL PARAMETER
+                                                        var idDepartment = urlObject.searchParams.get('idDepartment');
+                                                        
+                                                        //OPERATOR STATES MUST NOT BE NULL
+                                                        if (OperatorStates != 0) {
+                                                            if (OperatorStates === 1) {
+
+                                                                //PHASE ACTIVITY WILL BE MOVEMENT
+                                                                IdPhaseActivity = 4
+                                                                //PHASE STATE WILL BE WORKING
+                                                                IdPhaseState = 1;
+                                                                //ORDER AND PHASE DETAIL ARE HIDE
+                                                                ProcessOrder.style.display = "none";
+
+                                                                //itemData.titoloTimbratore IS THE NAME, OPERATOR CODE,OPERATOR ROLE AND DEPARTMENT OF THE OPERATOR THAT IS CLICKED
+                                                                var s = itemData.titoloTimbratore;
+
+                                                                //MANAGE STRING "s" TO GET ONLY THE OPERATOR CODE TO SET AS PARAMETER
+                                                                var extractedValue = null;
+                                                                var match = s.match(/\d+\.\d+\.\d+/);
+                                                                if (match) {
+                                                                    extractedValue = match[0];
+                                                                } else {
+                                                                    console.log("Value not found");
+                                                                }
+
+                                                                //THE PARAMETER THAT HAS TO BE SET IN THE URL, MUST BE ENCODE TO SET THEM SAFELY
+                                                                var operatorCode = encodeURIComponent(extractedValue);
+                                                                //NEXT VIEW CALLED IN TIMEBOUND CONTROLLER WITH THE PARAMETERS
+                                                                window.location.href = "/TimeBound/WorkPhase?operatorCode=" + operatorCode
+                                                                    + "&PhaseState=" + encodeURIComponent(IdPhaseState.toString())
+                                                                    + "&IdDepartment=" + encodeURIComponent(idDepartment.toString())
+                                                                    + "&IdPhaseActivity=" + encodeURIComponent(IdPhaseActivity.toString());
+                                                            }
+                                                            else if (OperatorStates === 2) {
+                                                                // PHASE STATE = STOPPED
+                                                                IdPhaseState = 2;
+
+                                                                //PHASE ACTIVITY BY COLOUR
+                                                                var IdPhaseActivity = GetPhaseActivityByColour(colour);
+
+                                                                //FUNCTION TO ADD DECLARATION
+                                                                handleTileClick(itemData, IdPhaseActivity, IdPhaseState, itemData.testoScorrevole)
+                                                                    .then(function (data) {
+                                                                        //UPDATE OPERATOR STATE
+                                                                        return handleButtonClick(itemData, 1);
+                                                                    })
+                                                                    .then(function (data) {
+                                                                        //UPDATE TILE
+                                                                        return GetOperatorState(itemData, tileId);
+                                                                    })
+                                                                    .catch(function (error) {
+                                                                        console.error("Error:", error);
+                                                                    });
+                                                            }
+                                                            hideLoader();
+                                                        }
+                                                    })
+
+                                            )
+
+                                    )
+                                    .on("click", function (e) {
+                                        e.stopPropagation(); // Prevent the click event from propagating to the parent tile
+                                        // Find the parent tile element (the div with class "tile-item")
+                                        var parentTile = $(this).closest(".tile-item");
+                                        // Retrieve the ID of the tile
+                                        var tileId = parentTile.attr("id"); $("<div>")
+
+                                        if (tileContent.css("background-color") === "darkgray" || tileContent.css("background-color") === "rgb(169, 169, 169)") {
+                                            showLoader();
+                                        }
+                                        else {
+                                            // var element = document.getElementById(tileId);
+                                            // var className = element.className;
+                                            var index = $(this.parentElement.parentElement.parentElement.parentElement).index();
+                                            var ddElements = document.getElementsByClassName("activityMenuDropDown");
+                                            if (IsDropDownOpen) {
+                                                // È true, devo chiudere
+                                                IsDropDownOpen = false;
+                                                ddElements[index].style.display = "none";
+                                            } else {
+                                                // È false, devo aprire
+                                                IsDropDownOpen = true;
+                                                ddElements[index].style.display = "block";
+                                                ddElements[index].style.zIndex = "2";
+                                            }
+
+                                        }
+
+
+                                    })
+                            )
+                            .append(
+                                $("<button>")
+                                    .text("Disegno")
+                                    .addClass("contextButton")
+                                    .attr("id", "Drawing")
+                                    .on("click", function (e) { })
+                            )
+                    )
+                    .on("click", function (e) {
+                        showLoader();
+                        
+                        //GET COLOR TO EVALUATE OPERATOR STATES OR PHASE ACTIVITY
+                        var colour = tileContent.css("background-color");
+
+                        //GET TILE ID TO SAVE THE ITEM
+                        var tileId = $(this).attr("id");
+
+                        //COUNT CLICK TO EVALUATE IF THE PHASE IS STOPPED OR FINISHED
+                        clickCount++;
+
+                        //GET OPERATOR STATE
+                        var OperatorStates = GetOperatorStateByColour(colour);
+
+                        //SET PHASE ACTIVITY AS 0
+                        var IdPhaseActivity = 0;
+
+                        //SET PHASE STATE AS 0
+                        var IdPhaseState = 0;
+
+                        //ORDER AND PHASE DETAIL WHEN OPERATOR IS AT WORK
+                        var ProcessOrder = tileContent[0].querySelector(".ProcessOrder");
+
+                        //GET URL
+                        var url = window.location.href;
+                        //SET URL OBJECT
+                        var urlObject = new URL(url);
+                        //GET URL PARAMETER
+                        var idDepartment = urlObject.searchParams.get('idDepartment');
+
+                        //OPERATOR STATES MUST NOT BE NULL
+                        if (OperatorStates !== 0) {
+
+                            //OPERATOR IS STOPPED (BLUE)
+                            if (OperatorStates === 1) {
+
+                                //PHASE ACTIVITY WILL BE PROCESSING
+                                IdPhaseActivity = 1
+                                //PHASE STATE WILL BE WORKING
+                                IdPhaseState = 1;
+                                //ORDER AND PHASE DETAIL ARE HIDE
+                                ProcessOrder.style.display = "none";
+
+                                //itemData.titoloTimbratore IS THE NAME, OPERATOR CODE,OPERATOR ROLE AND DEPARTMENT OF THE OPERATOR THAT IS CLICKED
+                                var s = itemData.titoloTimbratore;
+
+                                //MANAGE STRING "s" TO GET ONLY THE OPERATOR CODE TO SET AS PARAMETER
+                                var extractedValue = null;
+                                var match = s.match(/\d+\.\d+\.\d+/);
+                                if (match) {
+                                    extractedValue = match[0];
+                                } else {
+                                    console.log("Value not found");
+                                }
+
+                                //THE PARAMETER THAT HAS TO BE SET IN THE URL, MUST BE ENCODE TO SET THEM SAFELY
+                                var operatorCode = encodeURIComponent(extractedValue);
+                                //NEXT VIEW CALLED IN TIMEBOUND CONTROLLER WITH THE PARAMETERS
+                                window.location.href = "/TimeBound/WorkPhase?operatorCode=" + operatorCode
+                                    + "&PhaseState=" + encodeURIComponent(IdPhaseState.toString())
+                                    + "&IdDepartment=" + encodeURIComponent(idDepartment.toString())
+                                    + "&IdPhaseActivity=" + encodeURIComponent(IdPhaseActivity.toString());
+
+                            }
+
+                            //OPERATOR IS PROCESSING (COLOR BASED ON PHASE ACTIVITY)
+                            else if (OperatorStates === 2) {
+                                // Delay showing the loader for a short period (e.g., 300 milliseconds) to detect double-click
+                                setTimeout(function () {
+                                    if (clickCount === 1) {
+                                        // PHASE STATE = STOPPED
+                                        IdPhaseState = 2;
+
+                                        //PHASE ACTIVITY BY COLOUR
+                                        var IdPhaseActivity = GetPhaseActivityByColour(colour);
+
+                                        //FUNCTION TO ADD DECLARATION
+                                        handleTileClick(itemData, IdPhaseActivity, IdPhaseState, itemData.testoScorrevole)
+                                            .then(function (data) {
+                                                //UPDATE OPERATOR STATE
+                                                return handleButtonClick(itemData, 1);
+                                            })
+                                            .then(function (data) {
+                                                //UPDATE TILE
+                                                return GetOperatorState(itemData, tileId);
+                                            })
+                                            .catch(function (error) {
+                                                console.error("Error:", error);
+                                            });
+                                    }
+                                    else if (clickCount === 2) {
+                                        // PHASE STATE = FINISHED
+                                        IdPhaseState = 3;
+                                        //PHASE ACTIVITY BY COLOUR
+                                        var IdPhaseActivity = GetPhaseActivityByColour(colour);
+                                        
+                                        //FUNCTION TO ADD DECLARATION
+                                        handleTileClick(itemData, IdPhaseActivity, IdPhaseState, itemData.testoScorrevole)
+                                            .then(function (data) {
+                                                //UPDATE OPERATOR STATE
+                                                return handleButtonClick(itemData, 1);
+                                            })
+                                            .then(function (data) {
+                                                //UPDATE TILE
+                                                return GetOperatorState(itemData, tileId);
+                                            })
+                                            .catch(function (error) {
+                                                console.error("Error:", error);
+                                            });
+                                        clearTimeout(clickTimer);
+                                        clickCount = 0;
+                                    }
+                                }, 1500); // Adjust the delay time as needed
+                            }
+
+                            //OPERATOR IS UNAVAILABLE
+                            else if (OperatorStates === 3) {
+                                //OperatorStates = Unavailable
+
+                            }
+
+                        }
+                        hideLoader();
+                    })
+
+                var containerButtonTile = tileContent[0].querySelector(".contextButtonContainer");
+                var buttonActivity = containerButtonTile.querySelector('#phaseActivity');
+                var buttonDrawing = containerButtonTile.querySelector('#Drawing');
+                var ProcessOrder = tileContent[0].querySelector(".ProcessOrder");
+                if (controlColourID === "Unavailable") {
+                    //Prendo il bottone delle attività e lo metto invisibile
+                    buttonActivity.style.display = "none";
+                    buttonDrawing.style.display = "none";
+                    ProcessOrder.style.display = "none";
+                }
+
+                $(itemElement).append(tileContent);
+            }
+        });
+
+    </script>
+
+}

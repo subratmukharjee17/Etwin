@@ -1,0 +1,11 @@
+﻿@using DevExpress.AspNetCore;
+@using DevExtreme.AspNet.Mvc;
+@using ETwin.Documentations;
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+
+@(Html.DevExpress().WebDocumentViewer("WebDocumentViewer").Bind(new SchedaDiProcesso()))

@@ -1,0 +1,362 @@
+﻿@using DevExtreme.AspNet.Mvc
+@using Etwin.DAL.Models
+@model TimeBoundViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@section Styles {
+    <style>
+        #tileViewContainer {
+            overflow: auto;
+            width: 98%;
+            background: #eee;
+        }
+
+        #tileView {
+            height: 91vh !important;
+        }
+
+        .dx-item {
+            transition: all 0.3s;
+        }
+
+            .dx-item:hover {
+                transform: scale(1.05) !important;
+            }
+
+        .dx-scrollable-wrapper {
+            position: relative;
+            width: 100%;
+            height: auto;
+        }
+
+        .page-margin-default {
+            margin: 0px 0px 0px 15px;
+        }
+
+        .dx-tile {
+            color: #333;
+            background-color: #fff;
+            border: 1px solid rgba(221,221,221,.6);
+            text-align: left;
+            float: left;
+            height: 170px !important;
+            width: 275px !important;
+            margin: 10px !important;
+        }
+
+        #titleName {
+            font-size: 16px;
+        }
+
+        #ambitoTile {
+            display: inline;
+        }
+
+        .contextButtonContainer {
+            display: block;
+            width: 100%;
+            height: 20%;
+        }
+
+
+
+        .tileNames {
+            color: white;
+            width: 50%;
+        }
+
+            .tileNames div {
+                width: 60%;
+                margin-left: 20px;
+            }
+
+        .tilesCircle {
+            float: left;
+        }
+
+        .ContainerCircleText {
+            width: 100%;
+            height: 80%;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .contextButton {
+            margin: 2px;
+            width: 30%;
+            height: 100%;
+            padding: 2px;
+            border: 1px solid white;
+            font-size: 10px;
+            background-color: transparent;
+            color: white;
+            transition: 0.5s;
+        }
+
+            .contextButton:hover {
+                background: #FF330D;
+            }
+
+        .activityMenuDropDown {
+            /* display: none; */
+            display: block;
+            position: absolute;
+            background-color: #FF330D;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+            .activityMenuDropDown button {
+                display: block;
+                margin: 2px;
+                width: 100%;
+                height: 30px;
+                padding: 2px;
+                border: 1px solid white;
+                font-size: 10px;
+                background-color: #FF330D;
+                color: white;
+            }
+
+                .activityMenuDropDown button:hover {
+                    font-weight: bold;
+                }
+
+        #phaseActivity:hover .activityMenuDropDown {
+            display: block;
+        }
+
+        #backButtonTimebound {
+            width: 100%;
+            margin: 10px;
+        }
+
+            #backButtonTimebound button {
+                float: right;
+                background: darkgray;
+                color: black;
+                font-weight: bold;
+                margin-left: 20px !important;
+                border-radius: 4px;
+                transition: 0.5s;
+                border: none;
+            }
+
+                #backButtonTimebound button:hover {
+                    background: #FF330D;
+                    color: white;
+                }
+    </style>
+}
+
+
+<div class="header-container d-flex justify-content-between" id="backButtonTimebound">
+    <button class="back-button m-0" onclick="window.history.back()">
+        BACK
+    </button>
+</div>
+
+<div id="tileViewContainer" class="tileViewContainer ">
+    <div id="tileView" class="page-margin-default"></div>
+</div>
+
+
+@section Scripts {
+
+    <script>
+        function getColoreStatoOperatore(stato) {
+            var color = "white";
+
+            switch (stato) {
+
+                case "Lavorazione":
+                    color = "limegreen";
+                    break;
+                case "Attrezzaggio":
+                    color = "orange";
+                    break;
+                case "Preparazione":
+                    color = "steelblue";
+                    break;
+                case "Fermo":
+                    color = "steelblue";
+                    break;
+                case "Assente":
+                    color = "gray";
+                    break;
+                case "Sospesa":
+                    color = "blue";
+                    break;
+                case "Consigliata":
+                    color = "black";
+                    break;
+                default:
+                    color = "darkgray";
+                    break;
+            }
+
+            return color;
+        }
+
+        var lstTimbratore = @Html.Raw(Json.Serialize(Model.LstTimbratore));
+        // Function to add a tile to the table
+        $("#tileView").dxTileView({
+            dataSource: lstTimbratore,
+            direction: "horizontal",
+            //itemMargin: 20,
+            //itemWidth: 200,
+            //itemHeight: 200,
+            itemTemplate: function (itemData, itemIndex, itemElement) {
+                //debugger;
+                var tileId = "tile-" + itemData.immagine;
+                var text = itemData.titoloTimbratore;
+                var controlColourID = itemData.controlState;
+                var color = getColoreStatoOperatore(controlColourID);
+
+                var initials = "O";
+
+
+                // Seleziona il div all'interno del dxTileView
+                var tileDiv = $("#tileView .dx-item.dx-tile ");
+                tileDiv.attr("id", "TileId");
+
+                var scrollDiv = $(".dx-scrollable-wrapper");
+                scrollDiv.attr("id", "scrollTileContainer");
+
+                var tileContent = $("<div>")
+                    .addClass("tile-item") // Add the 'tile-item' class to each tile
+                    .css({
+                        "background-color": color,
+                        "height": "100%",
+                        "width": "100%",
+                        "padding": "7px",
+                        "border-radius": "5px",
+                        "display": "flex",
+                        "flex-direction": "column",
+                        "align-items": "center"
+                    })
+                    .append(
+                        $("<div>")
+                            .addClass("ContainerCircleText")
+                            .append(
+                                /*Tile Items' Circle*/
+                                $("<div>")
+                                    .addClass("tileCircle")
+                                    .css({
+                                        "font-size": "20px",
+                                        "font-weight": "bold",
+                                        "margin-right": "10px",
+                                        "background-color": "blue",
+                                        "color": "#fff",
+                                        "height": "80px",
+                                        "width": "80px",
+                                        "border-radius": "50%",
+                                        "display": "flex",
+                                        "align-items": "center",
+                                        "justify-content": "center"
+                                    })
+                                    .text(initials),
+
+                                /*Tile Items' names*/
+                                $("<div>")
+                                    .addClass("tileNames")
+                                    .css({
+                                        "display": "flex",
+                                        "flex-direction": "column"
+                                    })
+                                    .append(
+                                        $("<div>")
+                                            .css({
+                                                "font-size": "12px",
+                                                "font-weight": "bold"
+                                            })
+                                            .html(text)
+                                    )
+
+                            )
+                    )
+                    .on("click", function () {
+                        //GET URL
+                        var url = window.location.href;
+                        //SET URL OBJECT
+                        var urlObject = new URL(url);
+                        //GET URL PARAMETER
+
+                        var idDepartment = urlObject.searchParams.get('IdDepartment');
+                        var idPhase = '@TempData["PhaseId"]';
+                        var operatorCode = urlObject.searchParams.get('operatorCode');
+                        var idPhaseState = urlObject.searchParams.get('IdPhaseState');
+                        var idPhaseActivity = urlObject.searchParams.get('IdPhaseActivity');
+                        //debugger;
+                        showLoader();
+
+                        handleTileClick(itemData, operatorCode, idPhase, idPhaseState, idPhaseActivity)
+                            .then(function (data) {
+                                // Optionally, you can add further handling here if needed
+                                return UpdateOperatorState(idPhaseState, operatorCode,idDepartment);
+                            })
+                            .then(function (data) {
+                                hideLoader();
+                            })
+                            .catch(function (error) {
+                                console.error("Error:", error);
+                                hideLoader();
+                            });
+
+                    });
+
+                $(itemElement).append(tileContent);
+            }
+        });
+
+        function handleTileClick(itemData, opCode, idPhase, idPhaseState, idPhaseActivity) {
+            return $.ajax({
+                url: "/TimeBound/AddDeclarations",
+                method: "POST",
+                async: false,
+                data: {
+                    operatorCode: opCode,
+                    idPhaseActivity: idPhaseActivity,
+                    IdPhase: idPhase,
+                    IdPhaseState: idPhaseState,
+                    IdProcessList: itemData.idProcessList
+                },
+                success: function (data) {
+                    window.location.reload();
+                    console.log("Tile color saved successfully!");
+                }
+            })
+        }
+
+        function UpdateOperatorState(IdPhaseState, Operatorcode,idDepartment) {
+            var tileContent = $(".tile-item");
+            return $.ajax({
+                url: "/TimeBound/UpdateOperatorsState",
+                method: "POST",
+                async: false,
+                data: {
+                    operatorCode: Operatorcode,
+                    IdPhaseState: IdPhaseState,
+                }, 
+                complete: function () {
+                    window.location.href = "/TimeBound/Operator?idDepartment=" + encodeURIComponent(idDepartment.toString());
+                    //  hideLoader();
+                }
+            });
+        }
+
+    </script>
+
+
+
+}
+
+
+
+
+
+
+
